@@ -1,0 +1,98 @@
+/* ------------------------------------------------------
+ * General styles
+ * -----------------------------------------------------*/
+
+/* Headings */
+h1,h2,h3,h4,h5,h6{font-weight : bold;}
+h1{font-size : 24px;}
+h2{font-size : 20px;}
+p{font-size : 14px;}
+html{
+	overflow-x: hidden;
+}
+
+/* ------------------------------------------------------
+ * Index page styles
+ * -----------------------------------------------------*/
+#bckgrndimg{
+  background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.8)), url('img/events.jpg');
+  background-size: cover;
+  background-position: center;
+  height: 100vh;
+  background-attachment: fixed;
+  
+}
+.text-box{
+    position: relative;
+    margin-top: 17%;
+    color: white;
+}
+.btn-start{
+  background-color: #c8e458;
+}
+
+/* ------------------------------------------------------
+ * signup, resetpass and login page styles
+ * -----------------------------------------------------*/
+.backgrnd{
+	background:linear-gradient(rgba(107, 107, 71,0.6),rgba(107, 107, 71,0.6));
+	margin-top: 5%;
+	border: 1px solid white;
+	padding: 1%;
+	margin-top: 20vh;
+}
+.bg{
+	  background-image: linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.7)), url('img/events.jpg');
+	  background-size: cover;
+	  color: white;
+ }
+
+/* ------------------------------------------------------
+ * Dashboard  styles
+ * -----------------------------------------------------*/
+/* Remove the navbar's default margin-bottom and rounded borders */ 
+    .navbar {
+      margin-bottom: 0;
+      border-radius: 0;
+    }
+    
+    /* Set height of the grid so .sidenav can be 100% (adjust as needed) */
+    .row.content {height: 450px}
+    
+    /* Set gray background color and 100% height */
+    .sidenav {
+      padding-top: 20px;
+      background-color: #f1f1f1;
+      height: 100%;
+    }
+    
+    /* Set black background color, white text and some padding */
+    footer {
+      background-color: #555;
+      color: white;
+      padding: 15px;
+    }
+    
+    /* On small screens, set height to 'auto' for sidenav and grid */
+    @media screen and (max-width: 767px) {
+      .sidenav {
+        height: auto;
+        padding: 15px;
+      }
+      .row.content {height:auto;} 
+    }
+
+    /* ------------------------------------------------------
+ * Events Dashboard styles
+ * -----------------------------------------------------*/
+ table{
+ 	margin-top: 3%;
+ }
+ .ds_alerts{
+  color: black;
+  margin-top: 5%;
+}
+.eventsearch{
+  margin-top : 2%;
+  margin-bottom: 2%;
+ }
