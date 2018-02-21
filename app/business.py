@@ -18,19 +18,6 @@ class Business(object):
 		else:
 			return False
 
-	# def valid_name(self, name):
-	# 	"""check name length and special characters"""
-	# 	if len(name) < 3 or not re.match("^[a-zA-Z0-9_ ]*$", name):
-	# 		return False
-	# 	else:
-	# 		return True
-
-	# def valid_date(self, event_date):
-	# 	"""Check if the given date is less than the current date"""
-	# 	date = datetime.strptime(event_date, '%Y-%m-%d').date()
-	# 	if date < date.today():
-	# 		return False
-	# 	return True
 
 	def create(self, name, category, location, description, createdby):
 		"""A method for creating a new business"""
@@ -82,11 +69,7 @@ class Business(object):
 				self.business_list.remove(business)
 				if self.existing_business(name, createdby, location):
 					return "Business cannot be updated, a similar event exists"
-				# else:
-				# 	if not self.valid_name(name):
-				# 		return "name too short or invalid"
-				# 	elif not self.valid_date(event_date):
-				# 		return "event can only have a future date"
+			
 		else:
 					business['name'] = name
 					business['category'] = category
