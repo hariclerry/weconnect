@@ -10,15 +10,31 @@ from . import main
 @main.route('/')
 def index():
 	"""A route to render the home page"""
+	return jsonify({'message': 'Welcome to WeConnect'})
 
 
 
-@main.route('/api/v1/auth/signup', methods=['GET', 'POST'])
+@main.route('/api/v1/auth/signup', methods=['POST'])
 def signup():
 	"""A route to handle user registration"""
+	if request.method == 'POST':
+		data = request.get_json(force=True)
+		username = data['username']
+		email = data['email']
+		password = data['password']
+		cnfpassword = data['cnfpassword']
+		
+		for user in user_object.user_list:
+				if user['username'] == username  or user['email'] == email:
+					jsonify({'message': 'User already exists'})
+		#pass the details to the register method
+		res = user_object.register(username, email, password, cnfpassword)
+		if res == "Registration successful":
+			return jsonify(response=res), 201
+		else:
+			return jsonify(response=res), 409
     
 	
-
 @main.route('/api/v1/auth/login', methods=['GET', 'POST'])
 def signin():
 	"""A route to render the login page and log in a user"""

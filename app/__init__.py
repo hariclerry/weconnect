@@ -1,7 +1,7 @@
 # third-party imports
 import os
 from flask import Flask
-from app import user, business, review, middleware
+from app import user, business, review
 from config import app_config
 
 # local imports
