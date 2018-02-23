@@ -2,6 +2,8 @@
 #used to validate names
 # import re
 import uuid
+import jwt
+from datetime import datetime, timedelta
 
 
 class UserDetails(object):
@@ -9,6 +11,39 @@ class UserDetails(object):
     def __init__(self):
         # A list to hold all user objects
         self.user_list = []
+
+    def generate_token(self, user_id):
+        """Generates the access token to be used as the Authorization header"""
+
+        try:
+            # set up a payload with an expiration time
+            payload = {
+                'exp': datetime.utcnow() + timedelta(minutes=10),
+                'iat': datetime.utcnow(),
+                'sub': user_id
+            }
+            # create the byte string token using the payload and the SECRET key
+            jwt_string = jwt.encode(
+                payload,
+                'hard to guess string',
+                algorithm='HS256'
+            )
+            return jwt_string
+
+        except Exception as e:
+            # return an error in string format if an exception occurs
+            return str(e)
+
+    @staticmethod
+    def decode_token(token):
+        """Decode the access token from the Authorization header."""
+        try:
+            payload = jwt.decode(token, 'hard to guess string')
+            return payload['sub']
+        except jwt.ExpiredSignatureError:
+            return "Expired token. Please log in to get a new token"
+        except jwt.InvalidTokenError:
+            return "Invalid token. Please register or login"
 
     def register(self, username, email, password, cnfpassword):
         """A method to register users with correct and valid details"""
