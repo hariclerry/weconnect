@@ -95,23 +95,22 @@ def logout():
 	
 @main.route('/api/v1/newbusiness',  methods=[ 'POST'])
 
-def create_business(current_user):
+def create_business():
 	"""A route to handle registering businesses"""
-	if request.method == 'POST':
-		business_data = request.get_json()
-		name = business_data['name']
-		category = business_data['category']
-		location = business_data['location']
-		description = business_data['description']
-		createdby = current_user
-		for business in business_object.business_list:
-			if business['name'] ==  business_data['name'] and business['location'] ==  business_data['location']:
-				jsonify("Business already Exist")
-		res = business_object.create(name, category, location, description, createdby)
-		if res == "business created":
-			return jsonify(response=res), 201
-		else:
-			 return jsonify(response=res), 409
+	business_data = request.get_json()
+	name = business_data['name']
+	category = business_data['category']
+	location = business_data['location']
+	description = business_data['description']
+	# createdby = current_user
+	for business in business_object.business_list:
+		if business['name'] ==  business_data['name'] and business['location'] ==  business_data['location']:
+			jsonify("Business already Exist")
+	res = business_object.create(name, category, location, description)
+	if res == "business created":
+		return jsonify(response=res), 201
+	else:
+		 return jsonify(response=res), 409
 		
 
 @main.route('/api/v1/businesses', methods=['GET'])
@@ -125,7 +124,7 @@ def view_businesses():
 
 @main.route('/api/v1/businesses/<businessid>/edit', methods=['PUT'])
 
-def update_business(current_user, businessid):
+def update_business(businessid):
 	"""A route to handle business updates"""
 	businessid = uuid.UUID(businessid)
 	business_data = request.get_json()
@@ -133,8 +132,8 @@ def update_business(current_user, businessid):
 	category = business_data['category']
 	location = business_data['location']
 	description = business_data['description']
-	createdby =  business_data['createdby']
-	res = business_object.update(businessid, name, category, location,  description, createdby)
+	# createdby =  business_data['createdby']
+	res = business_object.update(businessid, name, category, location, description)
 	if res == "update successful":
 			return jsonify(response=res), 200
 	elif res == "no event with given id":
@@ -147,6 +146,8 @@ def update_business(current_user, businessid):
 
 def my_businesses():
 	"""This route returns businesses belonging to a specific user"""
+	# username = session['username']
+	# businesses = business_object.createdby_filter(username)
 
 	
 @main.route('/api/v1/businesses/<businessid>/delete', methods=['DELETE'])
@@ -156,7 +157,7 @@ def delete_businesses(businessid):
 	businessid = uuid.UUID(businessid)
 	res = business_object.delete(businessid)
 	if res == "deleted":
-		return jsonify(response="event deleted"),  204
+		return jsonify(response="business deleted"),  204
 	return jsonify(response=res), 404
 	
 	
