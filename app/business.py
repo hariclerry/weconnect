@@ -8,11 +8,11 @@ class Business(object):
 		"""define an empty list to hold all the business objects"""
 		self.business_list = []
 
-	def existing_business(self, name, location):
+	def existing_business(self, name, location,  createdby):
 		"""A method to check if a user already has that business in same location"""
 		for business in self.business_list:
 			#test to see if the user has the same business, in the same location in their list 
-			if business['name'] == name:
+			if business['name'] == name and business['createdby'] == createdby:
 				if business['location'] == location:
 					return True
 		else:
@@ -67,7 +67,7 @@ class Business(object):
 		for business in self.business_list:
 			if business['id'] == businessid:
 				self.business_list.remove(business)
-				if self.existing_business(name, location):
+				if self.existing_business(name, location, createdby):
 					return "Business cannot be updated, a similar business exists"
 				else:
 					business['name'] = name
