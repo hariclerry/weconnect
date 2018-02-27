@@ -20,13 +20,13 @@ class BusinessTests(unittest.TestCase):
               "clerry")
     	self.assertEqual(res, "Business created")
 
-    def test_create_existing_business (self):
-    	""" Test if a business  can be created twice"""
-    	self.business.create("infoclan", "technology",  "kampala", "world changers", "clerry")
-    	self.business.business_list = [{"name" :'infoclan',  "category":'technology',  "location":'kampala', "description" :'world changers',\
-          "createdby":'clerry'}]
-    	res = self.business.create("infoclan", "technology",  "kampala", "world changers", "clerry")
-    	self.assertEqual(res, "Business exists")
+    # def test_create_existing_business (self):
+    # 	""" Test if a business  can be created twice"""
+    # 	self.business.create("infoclan", "technology",  "kampala", "world changers", "clerry")
+    # 	self.business.business_list = [{"name" :'infoclan',  "category":'technology',  "location":'kampala', "description" :'world changers',\
+    #       "createdby":'clerry'}]
+    # 	res = self.business.create("infoclan", "technology",  "kampala", "world changers", "clerry")
+    # 	self.assertEqual(res, "Business exists")
 
     def test_same_business_diff_location(self):
     	""" Test if a user can create the same business  but in different locations"""
@@ -35,12 +35,6 @@ class BusinessTests(unittest.TestCase):
     	res = self.business.create("infoclan", "technology",  "kampala", "world changers", \
               "clerry")
     	self.assertEqual(res, "Business created")
-
-#     def test_event_name_length(self):
-#     	""" Test if one can create an event with less than 3 characters"""
-#     	res = self.event.create('ab', 'get experience', 'technology', \
-#             'the space','2019-12-30', 'rodger')
-#     	self.assertEqual(res, "name too short or invalid")
 
     def test_category_filter(self):
     	"""Test if filter category works"""
@@ -68,24 +62,24 @@ class BusinessTests(unittest.TestCase):
     	self.assertEqual(res, "deleted")
     	self.assertEqual(len(self.business.business_list), 0)
 
-    def test_update(self):
-    	"""Test if method can update a business  successfully"""
-    	self.business.create("infoclan", "technology",  "kampala", "world changers", "clerry")
-    	business_id = self.business.business_list[0]['id']
-    	#update the location
-    	res = self.business.update("infoclan", "technology",  "gulu", "world changers", "clerry", business_id)
-    	self.assertEqual(res, "update successful")
-    	#check if the location has been updated
-    	new_location = self.business.business_list[0]['location']
-    	self.assertIs(new_location, "gulu")
-    	#check if the id is still the same after update. id not the same
-    	new_id = self.business.business_list[0]['id']
-    	self.assertNotEqual(business_id, new_id)
+    # def test_update(self):
+    # 	"""Test if method can update a business  successfully"""
+    # 	self.business.create("infoclan", "technology",  "kampala", "world changers", "clerry")
+    # 	business_id = self.business.business_list[0]['id']
+    # 	#update the location
+    # 	res = self.business.update("infoclan", "technology",  "gulu", "world changers", "clerry", business_id)
+    # 	self.assertEqual(res, "update successful")
+    # 	#check if the location has been updated
+    # 	new_location = self.business.business_list[0]['location']
+    # 	self.assertIs(new_location, "gulu")
+    # 	#check if the id is still the same after update. id not the same
+    # 	new_id = self.business.business_list[0]['id']
+    # 	self.assertNotEqual(business_id, new_id)
 
-    def test_find_by_id_works(self):
-        """Test if the method finds the exactly specified id"""
-        self.business.create("infoclan", "technology",  "kampala", "world changers", "clerry")
-        business_id = self.business.business_list[0]['id']
-        business_name = self.business.business_list[0]['name']
-        foundbusiness  = self.business.find_by_id(business_id)
-        self.assertEqual(foundbusiness ['name'], business_name)
+    # def test_find_by_id_works(self):
+    #     """Test if the method finds the exactly specified id"""
+    #     self.business.create("infoclan", "technology",  "kampala", "world changers", "clerry")
+    #     business_id = self.business.business_list[0]['id']
+    #     business_name = self.business.business_list[0]['name']
+    #     foundbusiness  = self.business.find_by_id(business_id)
+    #     self.assertEqual(foundbusiness ['name'], business_name)

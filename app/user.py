@@ -18,7 +18,7 @@ class UserDetails(object):
         try:
             # set up a payload with an expiration time
             payload = {
-                'exp': datetime.utcnow() + timedelta(minutes=10),
+                'exp': datetime.utcnow() + timedelta(minutes=30),
                 'iat': datetime.utcnow(),
                 'sub': user_id
             }

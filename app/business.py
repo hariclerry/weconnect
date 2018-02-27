@@ -8,25 +8,25 @@ class Business(object):
 		"""define an empty list to hold all the business objects"""
 		self.business_list = []
 
-	def existing_business(self, name, location):
+	def existing_business(self, name, location,  createdby):
 		"""A method to check if a user already has that business in same location"""
 		for business in self.business_list:
 			#test to see if the user has the same business, in the same location in their list 
-			if business['name'] == name:
+			if business['name'] == name and business['createdby'] == createdby:
 				if business['location'] == location:
 					return True
 		else:
 			return False
 
 
-	def create(self, name, category, location, description):
+	def create(self, name, category, location, description, createdby):
 		"""A method for creating a new business"""
 		self.business_details = {}
 		self.business_details['name'] = name
 		self.business_details['category'] = category
 		self.business_details['location'] = location
 		self.business_details['description'] = description
-		# self.business_details['createdby'] = createdby
+		self.business_details['createdby'] = createdby
 		self.business_details['id'] = uuid.uuid1()
 		self.business_list.append(self.business_details)
 		return "Business created"	
@@ -59,22 +59,22 @@ class Business(object):
 	def find_by_id(self, businessid):
 		"""A method to find a business given an id"""
 		for business in self.business_list:
-			if business['id'] == businessid:
+			if str(business['id']) == businessid:
 				return business
-		return False
-	def update(self, businessid, name, category, location, description):
+		# return False
+	def update(self, businessid, name, category, location, description, createdby):
 		""" Find a business with the given id and update its details"""
 		for business in self.business_list:
 			if business['id'] == businessid:
 				self.business_list.remove(business)
-				if self.existing_business(name, location):
+				if self.existing_business(name, location, createdby):
 					return "Business cannot be updated, a similar business exists"
 				else:
 					business['name'] = name
 					business['category'] = category
 					business['location'] = location
 					business['description'] = description
-					# business['createdby'] = createdby
+					business['createdby'] = createdby
 					business['id'] = businessid
 					self.business_list.append(self.business_details)
 					return "update successful"
