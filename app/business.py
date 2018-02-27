@@ -19,14 +19,14 @@ class Business(object):
 			return False
 
 
-	def create(self, name, category, location, description):
+	def create(self, name, category, location, description, createdby):
 		"""A method for creating a new business"""
 		self.business_details = {}
 		self.business_details['name'] = name
 		self.business_details['category'] = category
 		self.business_details['location'] = location
 		self.business_details['description'] = description
-		# self.business_details['createdby'] = createdby
+		self.business_details['createdby'] = createdby
 		self.business_details['id'] = uuid.uuid1()
 		self.business_list.append(self.business_details)
 		return "Business created"	
@@ -59,10 +59,10 @@ class Business(object):
 	def find_by_id(self, businessid):
 		"""A method to find a business given an id"""
 		for business in self.business_list:
-			if business['id'] == businessid:
+			if str(business['id']) == businessid:
 				return business
-		return False
-	def update(self, businessid, name, category, location, description):
+		# return False
+	def update(self, businessid, name, category, location, description, createdby):
 		""" Find a business with the given id and update its details"""
 		for business in self.business_list:
 			if business['id'] == businessid:
@@ -74,7 +74,7 @@ class Business(object):
 					business['category'] = category
 					business['location'] = location
 					business['description'] = description
-					# business['createdby'] = createdby
+					business['createdby'] = createdby
 					business['id'] = businessid
 					self.business_list.append(self.business_details)
 					return "update successful"

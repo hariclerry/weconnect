@@ -1,12 +1,13 @@
 """This module defines the application endpoints"""
 
 import uuid
-from flask import request, jsonify, url_for, session, make_response
+from flask import request, jsonify, url_for, session, make_response, abort
 from functools import wraps
 from app import user_object, business_object, review_object
 from . import main
 import jwt
 import datetime
+import re
 
 
 def token_required(f):
@@ -47,28 +48,32 @@ def index():
 def signup():
 	"""A route to handle user registration"""
 	if request.method == 'POST':
-		data = request.get_json()
+		data = request.get_json() #passes in json data to the variable called data
 		username = data['username']
 		email = data['email']
 		password = data['password']
 		cnfpassword = data['cnfpassword']
+		if username.strip() == "" or not username.isalpha():
+			error = {"message": "Invalid name"}
+			return jsonify(error)
+		if not re.match(r"([\w\.-]+)@([\w\.-]+)(\.[\w\.]+$)", email):
+			error = {"message": "Invalid Email"}
+			return jsonify(error)
+		if password.strip() == "" or not password.isalpha():
+			error = {"message": "Invalid password"}
+			return jsonify(error)
+		if password != cnfpassword:
+			error = {"message": "password do not match"}
+			return jsonify(error)
 		
 		for user in user_object.user_list:
 				if user['username'] == data['username']  or user['email'] == data['email']:
 					jsonify({'message': 'User already exists'})
 		#pass the details to the register method
-		try:
-			res = user_object.register(username, email, password, cnfpassword)
-			if res == "Registration successful":
-				return jsonify(response=res), 201
-			else:
-				return jsonify(response=res), 409
-		except Exception as e:
-			response = {
-                'message': str(e)
-            }
-			return make_response(jsonify(response)), 500
-	return jsonify(response="Get request currently not allowed"), 405
+		res = user_object.register(username, email, password, cnfpassword)
+		if res == "Registration successful":
+			return jsonify(response=res), 201
+	# return jsonify(response="Get request currently not allowed"), 405
 
     
 	
@@ -81,59 +86,140 @@ def signin():
 		password = data['password']
 		res = user_object.login(username, password)
 		if res == "successful":
-			token = jwt.encode({'username' : username, 'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=30)}, 'hard to guess string')
-			return jsonify({'token' : token.decode()})
-		return res
-	return jsonify(response="Get request currently not allowed"), 405
+			for user in user_object.user_list:
+				if user['username'] == data["username"]:
+					session['userid'] = user['id']
+					session['username'] = username
+					# return jsonify(response="Login Successful"), 200
+					token = jwt.encode({'username' : username, 'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=30)}, 'hard to guess string',algorithm="HS256")
+					return jsonify({'token' : token.decode()})
+		# return res
+	return jsonify(response="wrong username or password"), 404
 		
 			               
             	
 
-@main.route('/api/v1/logout')
-def logout():
+@main.route('/api/v1/auth/logout', methods=[ 'POST'])
+@token_required
+def logout( current_user):
 	"""A route to logout and remove a user from the session"""
+	if not  current_user:
+		abort(404)
+	session.pop('userid')
+	session.pop('username')
+	return jsonify("successfully logged out"), 200
 	
-@main.route('/api/v1/newbusiness',  methods=[ 'POST'])
-
-def create_business():
+@main.route('/api/v1/businesses',  methods=[ 'POST'])
+@token_required
+def create_business(current_user):
 	"""A route to handle registering businesses"""
-	business_data = request.get_json()
+	if not  current_user:
+		abort(404)
+	business_data = request.get_json() # sent data from postman is converted to a python dictionary
 	name = business_data['name']
 	category = business_data['category']
 	location = business_data['location']
 	description = business_data['description']
-	# createdby = current_user
+	createdby = current_user
+
+	if name.strip() == "" or not name.isalpha():
+		message = {"message": "invalid name"}
+		return jsonify(message)
+	if category.strip() == "" or not category.isalpha():
+		message = {"message": "invalid category"}
+		return jsonify(message)
+	if location.strip() == "" or not location.isalpha():
+		message = {"message": "invalid location"}
+		return jsonify(message)
+	if description.strip() == "" or not description.isalpha():
+		message = {"message": "invalid description"}
+		return jsonify(message)
+            
 	for business in business_object.business_list:
 		if business['name'] ==  business_data['name'] and business['location'] ==  business_data['location']:
 			jsonify("Business already Exist")
-	res = business_object.create(name, category, location, description)
-	if res == "business created":
-		return jsonify(response=res), 201
+	res = business_object.create(name, category, location, description, createdby)
+	if res:
+		respond = {
+			"success": True,
+			"message": "business created successfully",
+			"Data" : {
+				"business info": business_data
+			}
+		}
+		return jsonify(response=respond), 201
 	else:
-		 return jsonify(response=res), 409
+		respond = {
+			"success": False,
+			"message": "business not created",
+		}
+
+		return jsonify(response=respond), 409 
 		
 
 @main.route('/api/v1/businesses', methods=['GET'])
-
-def view_businesses():
+@token_required
+def view_businesses(current_user):
 	"""A route to return all the registered businesses available"""
+	if not  current_user:
+		abort(404)
 	businesses = business_object.view_all()
-	return jsonify(businesses), 200
+	if businesses:
+		respond = {
+			"success": True,
+			"message": "businesses successfully retrieved",
+			"Data" : {
+				"business info": businesses
+			}
+		}
+		return jsonify(response=respond), 200
 
+@main.route('/api/v1/businesses/<businessid>', methods=['GET'])
+@token_required
+def single_businesses(current_user, businessid):
+	"""This route returns a single business"""
+	if not  current_user:
+		abort(404)
+	business = business_object.find_by_id(businessid)
+	if business:
+		respond = {
+			"success": True,
+			"message": "business successful",
+			"Data" : {
+				"business info": business
+			}
+		}
+		return jsonify(respones=respond), 200
+	return jsonify("no business with such id found"), 404
 
-
-@main.route('/api/v1/businesses/<businessid>/edit', methods=['PUT'])
-
-def update_business(businessid):
+@main.route('/api/v1/businesses/<businessid>', methods=['PUT'])
+@token_required
+def update_business(current_user, businessid):
 	"""A route to handle business updates"""
+	if not  current_user:
+		abort(404)
 	businessid = uuid.UUID(businessid)
 	business_data = request.get_json()
 	name = business_data['name']
 	category = business_data['category']
 	location = business_data['location']
 	description = business_data['description']
-	# createdby =  business_data['createdby']
-	res = business_object.update(businessid, name, category, location, description)
+	createdby =  business_data['createdby']
+
+	if name.strip() == "" or not name.isalpha():
+		message = {"message": "invalid name"}
+		return jsonify(message)
+	if category.strip() == "" or not category.isalpha():
+		message = {"message": "invalid category"}
+		return jsonify(message)
+	if location.strip() == "" or not location.isalpha():
+		message = {"message": "invalid location"}
+		return jsonify(message)
+	if description.strip() == "" or not description.isalpha():
+		message = {"message": "invalid description"}
+		return jsonify(message)
+
+	res = business_object.update(businessid, name, category, location, description, createdby)
 	if res == "update successful":
 			return jsonify(response=res), 200
 	elif res == "no event with given id":
@@ -141,44 +227,51 @@ def update_business(businessid):
 	else:
 			return jsonify(response=res), 409
 
-
-@main.route('/api/v1/businesses/mybusinesses')
-
-def my_businesses():
-	"""This route returns businesses belonging to a specific user"""
-	# username = session['username']
-	# businesses = business_object.createdby_filter(username)
-
 	
-@main.route('/api/v1/businesses/<businessid>/delete', methods=['DELETE'])
-
-def delete_businesses(businessid):
+@main.route('/api/v1/businesses/<businessid>', methods=['DELETE'])
+@token_required
+def delete_businesses(current_user, businessid):
 	"""A route to handle deletion of businesses"""
+	if not  current_user:
+		abort(404)
 	businessid = uuid.UUID(businessid)
 	res = business_object.delete(businessid)
 	if res == "deleted":
-		return jsonify(response="business deleted"),  204
+		return jsonify(response="business deleted"), 200
 	return jsonify(response=res), 404
 	
 	
-@main.route('/api/v1/business/<businessid>/review', methods=['POST'])
-
-def addreview(businessid):
+@main.route('/api/v1/business/<businessid>/review', methods=['POST', 'GET'])
+@token_required
+def addreview(current_user, businessid):
 	"""A route for user to add review on a particular business"""
+	if not  current_user:
+		abort(404)
+	businessid = uuid.UUID(businessid)
+	if request.method == 'POST': # POST request with valid input
+		review_data = request.get_json()
+		add_review = review_data['add_review']
 
+		if add_review.strip() == "" or not add_review.isalpha():
+			message = {"message": "invalid review"}
+			return jsonify(message)
 
-@main.route('/api/v1/business/<businessid>/viewreviews', methods=["GET"])
+		if not business_object.find_by_id(businessid):
+			return jsonify(response="can not add review to a non existing business"), 404
+		else:
+			res = review_object.create(businessid, add_review)
+			if res == "review success":
+				return jsonify(response=res), 200
+			else:
+				return jsonify("You have already added review for this business")
 
-def viewreviews(businessid):
-	"""A route to return all the the reviews for a specific business"""
+	if request.method == 'GET':
+		reviews = review_object.view_reviews(businessid)
+		return jsonify(reviews), 200
 
 
 @main.route('/api/v1/auth/resetpass', methods=['PUT'])
 def reset_pass():
 	"""Route to reset user password"""
 
-
-@main.route('/api/v1/searchbusinesses', methods=['POST'])
-def search_businesses():
-	"""A route to search businesses depending on the business category or location"""
 
