@@ -3,6 +3,7 @@ import os
 from flask import Flask
 from app.models import user, business, review
 from config import app_config
+from flasgger import Swagger
 
 # local imports
 #import the user, business and review classes
@@ -16,6 +17,7 @@ def create_app(config_name):
 	#load from config.py in root folder
 	app.config.from_object(app_config[config_name])
 	app.config['SECRET_KEY'] = '7d441f27d441f27567d441f2b6176a'
+	swagger = Swagger(app)
 	
 
 	#specify application route url
