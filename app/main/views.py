@@ -39,47 +39,55 @@ def token_required(f):
 
 @main.route('/')
 def index():
-	"""A route to render the index endpoint"""
+	"""index endpoint"""
 	return jsonify({'message': 'Welcome to WeConnect'})
 
 
 
 @main.route('/api/v1/auth/signup', methods=['GET', 'POST'])
 def signup():
-	"""A route to handle user registration"""
+	"""Endpoint for handling user registration"""
 	if request.method == 'POST':
-		data = request.get_json() #passes in json data to the variable called data
+		#passes in json data to the variable called data
+		data = request.get_json() 
 		username = data['username']
 		email = data['email']
 		password = data['password']
 		cnfpassword = data['cnfpassword']
-		if username.strip() == "" or not username.isalpha():
+		if username.strip() == "":
 			error = {"message": "Invalid name"}
 			return jsonify(error)
 		if not re.match(r"([\w\.-]+)@([\w\.-]+)(\.[\w\.]+$)", email):
 			error = {"message": "Invalid Email"}
 			return jsonify(error)
-		if password.strip() == "" or not password.isalpha():
+		if password.strip() == "":
 			error = {"message": "Invalid password"}
+			return jsonify(error)
+		if len(password) < 4:
+			error = {"message": "Password too short"}
 			return jsonify(error)
 		if password != cnfpassword:
 			error = {"message": "password do not match"}
 			return jsonify(error)
 		
 		for user in user_object.user_list:
-				if user['username'] == data['username']  or user['email'] == data['email']:
-					jsonify({'message': 'User already exists'})
+				if user['username']  == username  or  user['email'] == email :
+					return jsonify({'message': 'User already exists'})
 		#pass the details to the register method
 		res = user_object.register(username, email, password, cnfpassword)
-		if res == "Registration successful":
-			return jsonify(response=res), 201
-	# return jsonify(response="Get request currently not allowed"), 405
+		if res:
+			respond = {
+			"message": "Registration successful",
+			"Data" : { "User detail": data
+			}
+		}
+			return jsonify(response=respond), 201
 
     
 	
 @main.route('/api/v1/auth/login', methods=['GET', 'POST'])
 def signin():
-	"""A route to render the login page and log in a user"""
+	"""Endpoint for handling user login """
 	if request.method == 'POST': # POST request with valid input
 		data = request.get_json()
 		username = data['username']
@@ -96,23 +104,11 @@ def signin():
 		# return res
 	return jsonify(response="wrong username or password"), 404
 		
-			               
-            	
-
-@main.route('/api/v1/auth/logout', methods=[ 'POST'])
-@token_required
-def logout( current_user):
-	"""A route to logout and remove a user from the session"""
-	if not  current_user:
-		abort(404)
-	session.pop('userid')
-	session.pop('username')
-	return jsonify("successfully logged out"), 200
 	
 @main.route('/api/v1/businesses',  methods=[ 'POST'])
 @token_required
 def create_business(current_user):
-	"""A route to handle registering businesses"""
+	"""Endpoint for handling businesses registration """
 	if not  current_user:
 		abort(404)
 	business_data = request.get_json() # sent data from postman is converted to a python dictionary
@@ -120,31 +116,30 @@ def create_business(current_user):
 	category = business_data['category']
 	location = business_data['location']
 	description = business_data['description']
-	createdby = current_user
+	createdby = session['username']
 
-	if name.strip() == "" or not name.isalpha():
+	if name == "":
 		message = {"message": "invalid name"}
 		return jsonify(message)
-	if category.strip() == "" or not category.isalpha():
+	if category == "":
 		message = {"message": "invalid category"}
 		return jsonify(message)
-	if location.strip() == "" or not location.isalpha():
+	if location == "":
 		message = {"message": "invalid location"}
 		return jsonify(message)
-	if description.strip() == "" or not description.isalpha():
+	if description == "":
 		message = {"message": "invalid description"}
 		return jsonify(message)
             
 	for business in business_object.business_list:
-		if business['name'] ==  business_data['name'] and business['location'] ==  business_data['location']:
-			jsonify("Business already Exist")
+		if business['name'] ==  business_data['name'] or business['location'] ==  business_data['location']:
+			return jsonify("Business already Exist")
 	res = business_object.create(name, category, location, description, createdby)
 	if res:
 		respond = {
 			"success": True,
 			"message": "business created successfully",
-			"Data" : {
-				"business info": business_data
+			"Data" : { "Business": business_data
 			}
 		}
 		return jsonify(response=respond), 201
@@ -160,7 +155,7 @@ def create_business(current_user):
 @main.route('/api/v1/businesses', methods=['GET'])
 @token_required
 def view_businesses(current_user):
-	"""A route to return all the registered businesses available"""
+	"""Endpoint for returning all the registered businesses """
 	if not  current_user:
 		abort(404)
 	businesses = business_object.view_all()
@@ -177,7 +172,7 @@ def view_businesses(current_user):
 @main.route('/api/v1/businesses/<businessid>', methods=['GET'])
 @token_required
 def single_businesses(current_user, businessid):
-	"""This route returns a single business"""
+	"""Endpoint for returning a single business"""
 	if not  current_user:
 		abort(404)
 	business = business_object.find_by_id(businessid)
@@ -195,7 +190,7 @@ def single_businesses(current_user, businessid):
 @main.route('/api/v1/businesses/<businessid>', methods=['PUT'])
 @token_required
 def update_business(current_user, businessid):
-	"""A route to handle business updates"""
+	"""Endpoint for handling business updates"""
 	if not  current_user:
 		abort(404)
 	businessid = uuid.UUID(businessid)
@@ -204,7 +199,7 @@ def update_business(current_user, businessid):
 	category = business_data['category']
 	location = business_data['location']
 	description = business_data['description']
-	createdby =  business_data['createdby']
+	createdby =  session['username']
 
 	if name.strip() == "" or not name.isalpha():
 		message = {"message": "invalid name"}
@@ -215,23 +210,30 @@ def update_business(current_user, businessid):
 	if location.strip() == "" or not location.isalpha():
 		message = {"message": "invalid location"}
 		return jsonify(message)
-	if description.strip() == "" or not description.isalpha():
+	if description == "":
 		message = {"message": "invalid description"}
 		return jsonify(message)
 
 	res = business_object.update(businessid, name, category, location, description, createdby)
-	if res == "update successful":
-			return jsonify(response=res), 200
-	elif res == "no event with given id":
-			return jsonify(response=res), 404
+	if res:
+		respond = {
+			"success": True,
+			"message": "business created successfully",
+			"Data" : { "Business": business_data
+			}
+		    }
+		return jsonify(response=respond), 200
+			
+	elif res == "no business with given id":
+			return jsonify(response=respond), 404
 	else:
-			return jsonify(response=res), 409
+			return jsonify(response=respond), 409
 
 	
 @main.route('/api/v1/businesses/<businessid>', methods=['DELETE'])
 @token_required
 def delete_businesses(current_user, businessid):
-	"""A route to handle deletion of businesses"""
+	"""Endpoint for handling deletion of businesses"""
 	if not  current_user:
 		abort(404)
 	businessid = uuid.UUID(businessid)
@@ -244,7 +246,7 @@ def delete_businesses(current_user, businessid):
 @main.route('/api/v1/business/<businessid>/review', methods=['POST', 'GET'])
 @token_required
 def addreview(current_user, businessid):
-	"""A route for user to add review on a particular business"""
+	"""Endpoint for user to add review on a particular business"""
 	if not  current_user:
 		abort(404)
 	businessid = uuid.UUID(businessid)
@@ -252,7 +254,7 @@ def addreview(current_user, businessid):
 		review_data = request.get_json()
 		add_review = review_data['add_review']
 
-		if add_review.strip() == "" or not add_review.isalpha():
+		if add_review == "":
 			message = {"message": "invalid review"}
 			return jsonify(message)
 
@@ -269,9 +271,31 @@ def addreview(current_user, businessid):
 		reviews = review_object.view_reviews(businessid)
 		return jsonify(reviews), 200
 
+@main.route('/api/v1/auth/logout', methods=[ 'POST'])
+@token_required
+def logout( current_user):
+	"""Endpoint for logging out and removing a user from the session"""
+	if not  current_user:
+		abort(404)
+	session.pop('userid')
+	session.pop('username')
+	return jsonify("successfully logged out"), 200
+
 
 @main.route('/api/v1/auth/resetpass', methods=['PUT'])
 def reset_pass():
-	"""Route to reset user password"""
+	"""Endpoint for user password  reset"""
+	user_data = request.get_json()
+	email =  user_data['email']
+	new_password = user_data['new_password']
+	res = user_object.reset_pass(email, new_password)
+	if res:
+		for user in user_object.user_list:
+			if user.email == email:
+				user.password = new_password
+				return jsonify('password reset, now login'), 200
+	return jsonify("password not reset")
 
+  
+   
 
