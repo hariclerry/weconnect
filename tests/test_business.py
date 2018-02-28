@@ -1,4 +1,4 @@
-"""Module contains tests for the events class"""
+"""Module contains tests for the business class"""
 import unittest
 from app.models.business import Business
 
@@ -71,10 +71,4 @@ class BusinessTests(unittest.TestCase):
     	res = self.business.update("infoclan", "technology", "gulu", "world changers", "clerry", business_id)
     	self.assertEqual(res, "update successful")
     
-    # def test_find_by_id_works(self):
-    #     """Test if the method finds the exactly specified id"""
-    #     self.business.create("infoclan", "technology",  "kampala", "world changers", "clerry")
-    #     business_id = self.business.business_list[0]['id']
-    #     business_name = self.business.business_list[0]['name']
-    #     foundbusiness  = self.business.find_by_id(business_id)
-    #     self.assertEqual(foundbusiness ['name'], business_name)
+  
