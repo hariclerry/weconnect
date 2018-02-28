@@ -16,12 +16,9 @@ def create_app(config_name):
 	app = Flask(__name__)
 	#load from config.py in root folder
 	app.config.from_object(app_config[config_name])
-	app.config['SECRET_KEY'] = '7d441f27d441f27567d441f2b6176a'
+	app.config['SECRET_KEY'] = 'hard to guess string'
 	swagger = Swagger(app)
 	
-
-	#specify application route url
-	# app.wsgi_app = middleware.PrefixMiddleware(app.wsgi_app, prefix='/api/v1')
 
 	from .main import main as main_blueprint
 	app.register_blueprint(main_blueprint)
