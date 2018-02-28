@@ -8,6 +8,7 @@ from . import main
 import jwt
 import datetime
 import re
+from flasgger import swag_from
 
 
 def token_required(f):
@@ -37,16 +38,10 @@ def token_required(f):
 
 
 
-@main.route('/')
-def index():
-	"""index endpoint"""
-	return jsonify({'message': 'Welcome to WeConnect'})
-
-
 
 @main.route('/api/v1/auth/signup', methods=['GET', 'POST'])
+@swag_from('../api_docs/signup.yml')
 def signup():
-	"""Endpoint for handling user registration"""
 	if request.method == 'POST':
 		#passes in json data to the variable called data
 		data = request.get_json() 
@@ -77,11 +72,18 @@ def signup():
 		res = user_object.register(username, email, password, cnfpassword)
 		if res:
 			respond = {
+			"success": True,
 			"message": "Registration successful",
-			"Data" : { "User detail": data
-			}
-		}
+			"Data" : data
+		     }
 			return jsonify(response=respond), 201
+		else:
+			respond = {
+			"success": False,
+			"message": "Registration not successful",
+		    }
+			return jsonify(response=respond), 409 
+			# {"message": "User created", "id": 10}
 
     
 	
@@ -93,16 +95,20 @@ def signin():
 		username = data['username']
 		password = data['password']
 		res = user_object.login(username, password)
-		if res == "successful":
+		if res:
 			for user in user_object.user_list:
 				if user['username'] == data["username"]:
 					session['userid'] = user['id']
 					session['username'] = username
 					# return jsonify(response="Login Successful"), 200
 					token = jwt.encode({'username' : username, 'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=30)}, 'hard to guess string',algorithm="HS256")
-					return jsonify({'token' : token.decode()})
-		# return res
-	return jsonify(response="wrong username or password"), 404
+					respond = {
+			                    "success": True,
+			                    "message": "Registration successful",
+			                    "Token" : token.decode()
+		                    }
+					return jsonify(response=respond), 201
+	return jsonify(response="wrong username or password"), 400
 		
 	
 @main.route('/api/v1/businesses',  methods=[ 'POST'])
@@ -139,8 +145,8 @@ def create_business(current_user):
 		respond = {
 			"success": True,
 			"message": "business created successfully",
-			"Data" : { "Business": business_data
-			}
+			 "Business": business_data
+
 		}
 		return jsonify(response=respond), 201
 	else:
