@@ -1,6 +1,6 @@
 """This module defines tests for the user class and its methods"""
 import unittest
-from app.user import UserDetails
+from app.models.user import UserDetails
 
 class UserTests(unittest.TestCase):
     """Define and setup testing class"""
@@ -31,7 +31,7 @@ class UserTests(unittest.TestCase):
 
     # def test_register_invalid_email(self):
     #     """Test registering a user with invalid email"""
-    #     res = self.user.register("rodger", "clerry@mail.", "password", "password")
+    #     res = self.user.register("clerry", "clerry@mail.", "password", "password")
     #     self.assertEqual(res, "Username or email can only contain alphanumeric characters")
 
     # def test_email_missing_at_sign(self):

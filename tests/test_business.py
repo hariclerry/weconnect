@@ -1,6 +1,6 @@
 """Module contains tests for the events class"""
 import unittest
-from app.business import Business
+from app.models.business import Business
 
 class BusinessTests(unittest.TestCase):
     """Class definition and setup"""
