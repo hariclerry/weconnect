@@ -14,7 +14,7 @@ class Business(object):
 			#test to see if the user has the same business, in the same location in their list 
 			if business['name'] == name and business['createdby'] == createdby:
 				if business['location'] == location:
-					return True
+					return "Business exists"
 		else:
 			return False
 
@@ -30,9 +30,6 @@ class Business(object):
 		self.business_details['id'] = uuid.uuid1()
 		self.business_list.append(self.business_details)
 		return "Business created"	
-		
-		# if self.existing_business(name, createdby, location):
-		# 	return "Business exists"
 
 		
 			
@@ -69,7 +66,7 @@ class Business(object):
 				self.business_list.remove(business)
 				if self.existing_business(name, location, createdby):
 					return "Business cannot be updated, a similar business exists"
-				else:
+			else:
 					business['name'] = name
 					business['category'] = category
 					business['location'] = location
@@ -78,6 +75,7 @@ class Business(object):
 					business['id'] = businessid
 					self.business_list.append(self.business_details)
 					return "update successful"
+
 		else:
 		 	return "no Business with given id"
 
