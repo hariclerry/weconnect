@@ -24,8 +24,6 @@ class Review(object):
 		for review in self.review_list:
 			if  review['business_id'] == business_id:
 				return review
-		# reviews = [review['add_review'] for review in self.review_list if review['business_id'] == business_id]
-		# return reviews
 		return self.review_list
 
 
