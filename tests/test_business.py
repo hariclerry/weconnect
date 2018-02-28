@@ -15,6 +15,7 @@ class BusinessTests(unittest.TestCase):
 
     def test_create_business_works(self):
     	"""Test that with correct business  details the method works"""
+		
 
     	res = self.business.create("infoclan", "technology",  "kampala", "world changers", \
               "clerry")
