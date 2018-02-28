@@ -15,6 +15,7 @@ def token_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         token = None
+        current_user = ""
 
         if 'x-access-token' in request.headers:
             token = request.headers['x-access-token']
@@ -107,7 +108,7 @@ def signin():
 			                    "message": "Registration successful",
 			                    "Token" : token.decode()
 		                    }
-					return jsonify(response=respond), 201
+					return jsonify(response=respond), 200
 	return jsonify(response="wrong username or password"), 400
 		
 	
@@ -118,11 +119,11 @@ def create_business(current_user):
 	if not  current_user:
 		abort(404)
 	business_data = request.get_json() # sent data from postman is converted to a python dictionary
-	name = business_data['name']
-	category = business_data['category']
-	location = business_data['location']
-	description = business_data['description']
-	createdby = session['username']
+	name = business_data['name'].strip()
+	category = business_data['category'].strip()
+	location = business_data['location'].strip()
+	description = business_data['description'].strip()
+	createdby =  business_data['createdby'].strip()
 
 	if name == "":
 		message = {"message": "invalid name"}
@@ -136,10 +137,13 @@ def create_business(current_user):
 	if description == "":
 		message = {"message": "invalid description"}
 		return jsonify(message)
+	if createdby == "":
+		message = {"message": "invalid input"}
+		return jsonify(message)
             
 	for business in business_object.business_list:
 		if business['name'] ==  business_data['name'] or business['location'] ==  business_data['location']:
-			return jsonify("Business already Exist")
+			return jsonify("Business already Exist"), 409
 	res = business_object.create(name, category, location, description, createdby)
 	if res:
 		respond = {
@@ -162,18 +166,23 @@ def create_business(current_user):
 @token_required
 def view_businesses(current_user):
 	"""Endpoint for returning all the registered businesses """
-	if not  current_user:
-		abort(404)
+	# if not  current_user:
+	# 	abort(404)
 	businesses = business_object.view_all()
 	if businesses:
 		respond = {
 			"success": True,
 			"message": "businesses successfully retrieved",
-			"Data" : {
-				"business info": businesses
-			}
-		}
+			"Business List": businesses
+		    }
 		return jsonify(response=respond), 200
+	else:
+		respond = {
+			"success": False,
+			"message": "There is no business registered yet"
+		}
+
+		return jsonify(response=respond),  200
 
 @main.route('/api/v1/businesses/<businessid>', methods=['GET'])
 @token_required
@@ -190,8 +199,14 @@ def single_businesses(current_user, businessid):
 				"business info": business
 			}
 		}
-		return jsonify(respones=respond), 200
-	return jsonify("no business with such id found"), 404
+		return jsonify(response=respond), 200
+
+	else:
+		respond = {
+			"success": False,
+			"message": "no business with such id found"
+		}
+		return jsonify(response=respond), 404
 
 @main.route('/api/v1/businesses/<businessid>', methods=['PUT'])
 @token_required
@@ -201,39 +216,44 @@ def update_business(current_user, businessid):
 		abort(404)
 	businessid = uuid.UUID(businessid)
 	business_data = request.get_json()
-	name = business_data['name']
-	category = business_data['category']
-	location = business_data['location']
-	description = business_data['description']
-	createdby =  session['username']
+	name = business_data['name'].strip()
+	category = business_data['category'].strip()
+	location = business_data['location'].strip()
+	description = business_data['description'].strip()
+	createdby =  business_data['createdby'].strip()
 
-	if name.strip() == "" or not name.isalpha():
+	if name == "":
 		message = {"message": "invalid name"}
 		return jsonify(message)
-	if category.strip() == "" or not category.isalpha():
+	if category == "":
 		message = {"message": "invalid category"}
 		return jsonify(message)
-	if location.strip() == "" or not location.isalpha():
+	if location == "":
 		message = {"message": "invalid location"}
 		return jsonify(message)
 	if description == "":
 		message = {"message": "invalid description"}
+		return jsonify(message)
+	if createdby == "":
+		message = {"message": "invalid input"}
 		return jsonify(message)
 
 	res = business_object.update(businessid, name, category, location, description, createdby)
 	if res:
 		respond = {
 			"success": True,
-			"message": "business created successfully",
-			"Data" : { "Business": business_data
-			}
+			"message": "business updated successfully",
+			"Business": business_data
 		    }
 		return jsonify(response=respond), 200
 			
-	elif res == "no business with given id":
-			return jsonify(response=respond), 404
 	else:
-			return jsonify(response=respond), 409
+		respond = {
+			"success": False,
+			"message": "no business with given id"
+		    }
+		return jsonify(response=respond), 404
+# return jsonify("business not updated"), 409
 
 	
 @main.route('/api/v1/businesses/<businessid>', methods=['DELETE'])
@@ -244,9 +264,19 @@ def delete_businesses(current_user, businessid):
 		abort(404)
 	businessid = uuid.UUID(businessid)
 	res = business_object.delete(businessid)
-	if res == "deleted":
-		return jsonify(response="business deleted"), 200
-	return jsonify(response=res), 404
+	if res:
+		respond = {
+			"success": True,
+			"message": "business deleted"
+		    }
+		return jsonify(response=respond), 200
+			
+	else:
+		respond = {
+			"success": False,
+			"message": "no business with given id"
+		    }
+		return jsonify(response=res), 404
 	
 	
 @main.route('/api/v1/business/<businessid>/review', methods=['POST', 'GET'])
@@ -258,7 +288,7 @@ def addreview(current_user, businessid):
 	businessid = uuid.UUID(businessid)
 	if request.method == 'POST': # POST request with valid input
 		review_data = request.get_json()
-		add_review = review_data['add_review']
+		add_review = review_data['add_review'].strip()
 
 		if add_review == "":
 			message = {"message": "invalid review"}
@@ -268,14 +298,34 @@ def addreview(current_user, businessid):
 			return jsonify(response="can not add review to a non existing business"), 404
 		else:
 			res = review_object.create(businessid, add_review)
-			if res == "review success":
-				return jsonify(response=res), 200
+			if res:
+				respond = {
+			                "success": True,
+			                "message": "review added"
+		                  }
+				return jsonify(response=respond), 201
 			else:
-				return jsonify("You have already added review for this business")
+				respond = {
+			                "success": False,
+			                "message": "You have already added review for this business"
+		                      }
+				return jsonify(response=res), 409
+				
 
 	if request.method == 'GET':
 		reviews = review_object.view_reviews(businessid)
-		return jsonify(reviews), 200
+		if reviews:
+			respond = {
+			            "success": True,
+			            "message": "reviews for this particular business",
+						 "reviews": review_data
+		                  }
+			return jsonify(response=respond), 200
+		else:
+			respond = {
+			                "message": "No review added yet"
+		         }
+			return jsonify(response=respond), 200
 
 @main.route('/api/v1/auth/logout', methods=[ 'POST'])
 @token_required
