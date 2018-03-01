@@ -1,0 +1,33 @@
+Endpoint for handling user registration
+---
+tags:
+  - User
+description: Registers User
+
+parameters:
+  - name: username 
+    in: body
+    type: string
+    required: true
+    example: fiorella   
+  - name: email
+    in: body
+    type: string
+    required: true
+    example: fiorella@gmail.com   
+  - name: password 
+    in: body
+    type: string
+    required: true
+    example: fiore55a
+  - name: cnfpassword
+    in: body
+    type: string
+    required: true
+    example: fiore55a      
+responses:
+  200:
+    description: Registration successful
+  409: 
+    description: Registration not successful
+   

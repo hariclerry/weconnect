@@ -4,7 +4,13 @@ python:
 
 install:
   - pip install coverage
+  - pip install coveralls
+  - pip install nosexcover
   - pip install -r requirements.txt
 
 script:
-  - nosetests
+  - nosetests --with-xcoverage --cover-package=app.models --cover-tests
+
+after_success:
+  - coverage report
+  - coveralls

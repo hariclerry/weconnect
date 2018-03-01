@@ -80,10 +80,10 @@ class UserDetails(object):
             if user['id'] == user_id:
                 return user
 
-    def reset_pass(self, username, newpass):
+    def reset_pass(self, email, new_password):
         """A method to reset a password"""
         for user in self.user_list:
-            if user['username'] == username:
-                user['password'] = newpass
+            if user['email'] == email:
+                user['password'] = new_password
                 return "success"
             return "incorrect username"

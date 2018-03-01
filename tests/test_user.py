@@ -1,6 +1,6 @@
 """This module defines tests for the user class and its methods"""
 import unittest
-from app.user import UserDetails
+from app.models.user import UserDetails
 
 class UserTests(unittest.TestCase):
     """Define and setup testing class"""
@@ -18,28 +18,6 @@ class UserTests(unittest.TestCase):
         """Test if a user with correct credentials can register sucessfully"""
         res = self.user.register("clerry", "clerry@mail.com", "password", "password")
         self.assertEqual(res, 'Registration successful')
-
-    # def test_special_characters_in_username(self):
-    #     """Test registering a username with special characters"""
-    #     res = self.user.register("clerry*#", "clerry@mail.com", "password", "password")
-    #     self.assertEqual(res, "Username or email can only contain alphanumeric characters")
-
-    # def test_special_characters_in_email(self):
-    #     """Test registering an email with special characters"""
-    #     res = self.user.register("clerry", "clerry#y@mail.com", "password", "password")
-    #     self.assertEqual(res, "Username or email can only contain alphanumeric characters")
-
-    # def test_register_invalid_email(self):
-    #     """Test registering a user with invalid email"""
-    #     res = self.user.register("rodger", "clerry@mail.", "password", "password")
-    #     self.assertEqual(res, "Username or email can only contain alphanumeric characters")
-
-    # def test_email_missing_at_sign(self):
-    #     """Test registering a user with invalid email"""
-    #     res = self.user.register("clerry", "clerrymail.com", "password", "password")
-    #     self.assertEqual(res, "Username or email can only contain alphanumeric characters")
-
-    
         
     def test_existing_user_username(self):
         """Test with an already existing username, try registering a user twice"""
@@ -53,13 +31,6 @@ class UserTests(unittest.TestCase):
         res = self.user.register("clerry", "clerry@mail.com", "password", "password")
         self.assertEqual(res, "Username or email already exists.")
 
-
-
-    # def test_password_match(self):
-    #     """Test if password matching is working"""
-    #     res = self.user.register("clerry", "clerry@mail.com", "password", "password")
-    #     self.assertEqual(res, "passwords do not match")
-    
     def test_user_login(self):
         """Test if a user with valid details can login"""
         self.user.register("clerry", "clerry@mail.com", "password", "password")

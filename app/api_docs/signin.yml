@@ -1,0 +1,23 @@
+Endpoint for handling user login
+---
+tags:
+  - User
+description: Logs in User
+
+parameters:
+  - name: username
+    in: body
+    type: string
+    required: true
+    example: fiorella     
+  - name: password
+    in: body
+    type: string
+    required: true
+    example: fiore55a     
+responses:
+  200:
+    description: Login successful
+  401: 
+    description: wrong username or password
+   

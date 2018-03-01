@@ -4,7 +4,7 @@ class Review(object):
 	def __init__(self):
 		self.review_list = []
 
-	def create(self, business_id, add_review):
+	def create(self, business_id, review):
 		""" give review on  a particular business"""
 		self.review_details = {}
 		for review in self.review_list:
@@ -12,7 +12,7 @@ class Review(object):
 				return "user already added review on this business"
 		else:
 			self.review_details['business_id'] = business_id
-			self.review_details['add_review'] = add_review
+			self.review_details['review'] = review
 			self.review_list.append(self.review_details)
 			return "review success"
 
@@ -24,8 +24,6 @@ class Review(object):
 		for review in self.review_list:
 			if  review['business_id'] == business_id:
 				return review
-		# reviews = [review['add_review'] for review in self.review_list if review['business_id'] == business_id]
-		# return reviews
 		return self.review_list
 
 
