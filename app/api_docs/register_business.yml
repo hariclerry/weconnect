@@ -1,0 +1,38 @@
+Endpoint for handling business registration
+---
+tags:
+  - Business
+description: Registers business
+
+parameters:
+  - name: name 
+    in: body
+    type: string
+    required: true
+    example: andela  
+  - name: category 
+    in: body
+    type: string
+    required: true
+    example: technology   
+  - name: location 
+    in: body
+    type: string
+    required: true
+    example: Kamwokya
+  - name: description 
+    in: body
+    type: string
+    required: true
+    example: This is andela
+  - name: createdby
+    in: body
+    type: string
+    required: true
+    example: fiorella   
+responses:
+  200:
+    description: Business created successfully
+  409: 
+    description: Business not created
+   
