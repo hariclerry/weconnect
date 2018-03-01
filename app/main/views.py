@@ -2,13 +2,14 @@
 
 import uuid
 from flask import request, jsonify, url_for, session, make_response, abort
+from flasgger import swag_from
 from functools import wraps
-from app import user_object, business_object, review_object
-from . import main
 import jwt
 import datetime
 import re
-from flasgger import swag_from
+from app import user_object, business_object, review_object
+from . import main
+
 
 
 def token_required(f):
@@ -21,7 +22,7 @@ def token_required(f):
             token = request.headers['x-access-token']
 
         if not token:
-            return jsonify({'message' : 'Token is missing!'}), 401
+            return jsonify({'message' : 'Token is required!'}), 401
 
         try: 
             data = jwt.decode(token, 'hard to guess string')
@@ -40,7 +41,7 @@ def token_required(f):
 
 
 
-@main.route('/api/v1/auth/signup', methods=['GET', 'POST'])
+@main.route('/api/v1/auth/signup', methods=['POST'])
 @swag_from('../api_docs/signup.yml')
 def signup():
 	if request.method == 'POST':
@@ -77,20 +78,19 @@ def signup():
 			"message": "Registration successful",
 			"Data" : data
 		     }
-			return jsonify(response=respond), 201
+			return jsonify(respond), 201
 		else:
 			respond = {
 			"success": False,
 			"message": "Registration not successful",
 		    }
-			return jsonify(response=respond), 409 
-			# {"message": "User created", "id": 10}
-
-    
+			return jsonify(respond), 409 
+		   
 	
-@main.route('/api/v1/auth/login', methods=['GET', 'POST'])
+@main.route('/api/v1/auth/login', methods=['POST'])
+@swag_from('../api_docs/signin.yml')
 def signin():
-	"""Endpoint for handling user login """
+
 	if request.method == 'POST': # POST request with valid input
 		data = request.get_json()
 		username = data['username']
@@ -105,17 +105,17 @@ def signin():
 					token = jwt.encode({'username' : username, 'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=30)}, 'hard to guess string',algorithm="HS256")
 					respond = {
 			                    "success": True,
-			                    "message": "Registration successful",
+			                    "message": "Login successful",
 			                    "Token" : token.decode()
 		                    }
-					return jsonify(response=respond), 200
-	return jsonify(response="wrong username or password"), 400
+					return jsonify(respond), 200
+	return jsonify(response="Wrong Username or Password"), 401
 		
 	
 @main.route('/api/v1/businesses',  methods=[ 'POST'])
 @token_required
-def create_business(current_user):
-	"""Endpoint for handling businesses registration """
+@swag_from('../api_docs/register_business.yml')
+def register_business(current_user):
 	if not  current_user:
 		abort(404)
 	business_data = request.get_json() # sent data from postman is converted to a python dictionary
@@ -126,19 +126,19 @@ def create_business(current_user):
 	createdby =  business_data['createdby'].strip()
 
 	if name == "":
-		message = {"message": "invalid name"}
+		message = {"message": "Invalid name"}
 		return jsonify(message)
 	if category == "":
-		message = {"message": "invalid category"}
+		message = {"message": "Invalid category"}
 		return jsonify(message)
 	if location == "":
-		message = {"message": "invalid location"}
+		message = {"message": "Invalid location"}
 		return jsonify(message)
 	if description == "":
-		message = {"message": "invalid description"}
+		message = {"message": "Invalid description"}
 		return jsonify(message)
 	if createdby == "":
-		message = {"message": "invalid input"}
+		message = {"message": "Invalid input"}
 		return jsonify(message)
             
 	for business in business_object.business_list:
@@ -147,42 +147,42 @@ def create_business(current_user):
 	res = business_object.create(name, category, location, description, createdby)
 	if res:
 		respond = {
-			"success": True,
-			"message": "business created successfully",
-			 "Business": business_data
+			"Success": True,
+			"Message": "Business created successfully",
+			 "Data": business_data
 
 		}
-		return jsonify(response=respond), 201
+		return jsonify(respond), 201
 	else:
 		respond = {
 			"success": False,
-			"message": "business not created",
+			"message": "Business not created",
 		}
 
-		return jsonify(response=respond), 409 
+		return jsonify(respond), 409 
 		
 
 @main.route('/api/v1/businesses', methods=['GET'])
 @token_required
 def view_businesses(current_user):
 	"""Endpoint for returning all the registered businesses """
-	# if not  current_user:
-	# 	abort(404)
+	if not  current_user:
+		abort(404)
 	businesses = business_object.view_all()
 	if businesses:
 		respond = {
 			"success": True,
-			"message": "businesses successfully retrieved",
-			"Business List": businesses
+			"message": "Businesses successfully retrieved",
+			"Data": businesses
 		    }
-		return jsonify(response=respond), 200
+		return jsonify(respond), 200
 	else:
 		respond = {
 			"success": False,
 			"message": "There is no business registered yet"
 		}
 
-		return jsonify(response=respond),  200
+		return jsonify(respond),  200
 
 @main.route('/api/v1/businesses/<businessid>', methods=['GET'])
 @token_required
@@ -194,19 +194,18 @@ def single_businesses(current_user, businessid):
 	if business:
 		respond = {
 			"success": True,
-			"message": "business successful",
-			"Data" : {
-				"business info": business
-			}
+			"message": "Business successful",
+			"Data" : business
+			
 		}
-		return jsonify(response=respond), 200
+		return jsonify(respond), 200
 
 	else:
 		respond = {
 			"success": False,
-			"message": "no business with such id found"
+			"message": "No business with such id found"
 		}
-		return jsonify(response=respond), 404
+		return jsonify(respond), 404
 
 @main.route('/api/v1/businesses/<businessid>', methods=['PUT'])
 @token_required
@@ -242,17 +241,17 @@ def update_business(current_user, businessid):
 	if res:
 		respond = {
 			"success": True,
-			"message": "business updated successfully",
+			"message": "Business updated successfully",
 			"Business": business_data
 		    }
-		return jsonify(response=respond), 200
+		return jsonify(respond), 200
 			
 	else:
 		respond = {
 			"success": False,
-			"message": "no business with given id"
+			"message": "No business with given id"
 		    }
-		return jsonify(response=respond), 404
+		return jsonify(respond), 404
 # return jsonify("business not updated"), 409
 
 	
@@ -267,16 +266,16 @@ def delete_businesses(current_user, businessid):
 	if res:
 		respond = {
 			"success": True,
-			"message": "business deleted"
+			"message": "Business deleted"
 		    }
-		return jsonify(response=respond), 200
+		return jsonify(respond), 200
 			
 	else:
 		respond = {
 			"success": False,
-			"message": "no business with given id"
+			"message": "No business with given id"
 		    }
-		return jsonify(response=res), 404
+		return jsonify(respond), 404
 	
 	
 @main.route('/api/v1/business/<businessid>/review', methods=['POST', 'GET'])
@@ -285,47 +284,47 @@ def addreview(current_user, businessid):
 	"""Endpoint for user to add review on a particular business"""
 	if not  current_user:
 		abort(404)
-	businessid = uuid.UUID(businessid)
+	# businessid = uuid.UUID(businessid)
 	if request.method == 'POST': # POST request with valid input
 		review_data = request.get_json()
-		add_review = review_data['add_review'].strip()
+		review = review_data['add_review'].strip()
 
-		if add_review == "":
-			message = {"message": "invalid review"}
+		if review == "":
+			message = {"message": "Invalid review"}
 			return jsonify(message)
 
 		if not business_object.find_by_id(businessid):
-			return jsonify(response="can not add review to a non existing business"), 404
+			return jsonify(response="Can not add review to a non existing business"), 404
 		else:
-			res = review_object.create(businessid, add_review)
+			res = review_object.create(businessid, review)
 			if res:
 				respond = {
 			                "success": True,
-			                "message": "review added"
+			                "message": "Review added successfully"
 		                  }
-				return jsonify(response=respond), 201
+				return jsonify(respond), 201
 			else:
 				respond = {
-			                "success": False,
-			                "message": "You have already added review for this business"
+			                "Success": False,
+			                "Message": "You have already added review for this business"
 		                      }
-				return jsonify(response=res), 409
+				return jsonify(respond), 409
 				
 
 	if request.method == 'GET':
 		reviews = review_object.view_reviews(businessid)
 		if reviews:
 			respond = {
-			            "success": True,
-			            "message": "reviews for this particular business",
-						 "reviews": review_data
+			            "Success": True,
+			            "Message": "Reviews for this particular business",
+						 "Data": review_data
 		                  }
-			return jsonify(response=respond), 200
+			return jsonify(respond), 200
 		else:
 			respond = {
-			                "message": "No review added yet"
+			                "Message": "No review added yet"
 		         }
-			return jsonify(response=respond), 200
+			return jsonify(respond), 200
 
 @main.route('/api/v1/auth/logout', methods=[ 'POST'])
 @token_required
@@ -335,7 +334,7 @@ def logout( current_user):
 		abort(404)
 	session.pop('userid')
 	session.pop('username')
-	return jsonify("successfully logged out"), 200
+	return jsonify("Successfully logged out"), 200
 
 
 @main.route('/api/v1/auth/resetpass', methods=['PUT'])
@@ -349,8 +348,8 @@ def reset_pass():
 		for user in user_object.user_list:
 			if user.email == email:
 				user.password = new_password
-				return jsonify('password reset, now login'), 200
-	return jsonify("password not reset")
+				return jsonify('Password reset, now login'), 200
+	return jsonify("Password not reset")
 
   
    
