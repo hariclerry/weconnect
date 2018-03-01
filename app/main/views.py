@@ -38,6 +38,10 @@ def token_required(f):
 
 
 
+@main.route('/', methods=['GET'])
+
+def index():
+	return jsonify({"message":"Welcome to WeConnect"})
 
 
 
@@ -213,7 +217,7 @@ def update_business(current_user, businessid):
 	"""Endpoint for handling business updates"""
 	if not  current_user:
 		abort(404)
-	# businessid = uuid.UUID(businessid)
+	businessid = uuid.UUID(businessid)
 	business_data = request.get_json()
 	name = business_data['name'].strip()
 	category = business_data['category'].strip()
