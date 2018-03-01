@@ -213,7 +213,7 @@ def update_business(current_user, businessid):
 	"""Endpoint for handling business updates"""
 	if not  current_user:
 		abort(404)
-	businessid = uuid.UUID(businessid)
+	# businessid = uuid.UUID(businessid)
 	business_data = request.get_json()
 	name = business_data['name'].strip()
 	category = business_data['category'].strip()
@@ -236,6 +236,10 @@ def update_business(current_user, businessid):
 	if createdby == "":
 		message = {"message": "invalid input"}
 		return jsonify(message)
+	
+	# for business in business_object.business_list:
+	# 	if business['name'] ==  business_data['name'] or business['location'] ==  business_data['location']:
+	# 		return jsonify("Business already Exist"), 409
 
 	res = business_object.update(businessid, name, category, location, description, createdby)
 	if res:
@@ -261,7 +265,7 @@ def delete_businesses(current_user, businessid):
 	"""Endpoint for handling deletion of businesses"""
 	if not  current_user:
 		abort(404)
-	businessid = uuid.UUID(businessid)
+	# businessid = uuid.UUID(businessid)
 	res = business_object.delete(businessid)
 	if res:
 		respond = {
@@ -287,7 +291,7 @@ def addreview(current_user, businessid):
 	# businessid = uuid.UUID(businessid)
 	if request.method == 'POST': # POST request with valid input
 		review_data = request.get_json()
-		review = review_data['add_review'].strip()
+		review = review_data['review'].strip()
 
 		if review == "":
 			message = {"message": "Invalid review"}
@@ -317,7 +321,7 @@ def addreview(current_user, businessid):
 			respond = {
 			            "Success": True,
 			            "Message": "Reviews for this particular business",
-						 "Data": review_data
+						 "Data": reviews
 		                  }
 			return jsonify(respond), 200
 		else:
