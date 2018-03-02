@@ -217,7 +217,7 @@ def update_business(current_user, businessid):
 	"""Endpoint for handling business updates"""
 	if not  current_user:
 		abort(404)
-	businessid = uuid.UUID(businessid)
+	# businessid = uuid.UUID(businessid)
 	business_data = request.get_json()
 	name = business_data['name'].strip()
 	category = business_data['category'].strip()
@@ -269,7 +269,7 @@ def delete_businesses(current_user, businessid):
 	"""Endpoint for handling deletion of businesses"""
 	if not  current_user:
 		abort(404)
-	# businessid = uuid.UUID(businessid)
+	businessid = uuid.UUID(businessid)
 	res = business_object.delete(businessid)
 	if res:
 		respond = {
