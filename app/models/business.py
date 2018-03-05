@@ -70,8 +70,8 @@ class Business(object):
 				business['description'] = description
 				business['createdby'] = createdby
 				self.business_list[counter] = business
-				return "Business updated"
 			counter += 1
+		return "Business updated"
 
 		
 
