@@ -2,32 +2,52 @@ Endpoint for handling user registration
 ---
 tags:
   - User
-description: Registers User
-
 parameters:
-  - name: username 
+  - name: body
+    description: this contains user registration details
     in: body
-    type: string
     required: true
-    example: fiorella   
-  - name: email
-    in: body
-    type: string
-    required: true
-    example: fiorella@gmail.com   
-  - name: password 
-    in: body
-    type: string
-    required: true
-    example: fiore55a
-  - name: cnfpassword
-    in: body
-    type: string
-    required: true
-    example: fiore55a      
+    schema:
+      type: object
+      required:
+        - "username"
+        - "email"
+        - "password"
+        - "cnfpassword"
+      properties:
+        username:
+          type: "string"
+          example: "fiorella"
+        email:
+          type: "string"
+          example: "fiorella@gmail.com"
+        password:
+          type: "string"
+          format: password
+          example: "fiore55a"
+        cnfpassword:
+          type: "string"
+          format: password
+          example: "fiore55a"
+
 responses:
   200:
-    description: Registration successful
-  409: 
-    description: Registration not successful
-   
+    description: User successfuly registered
+    schema: 
+      type: object
+      properties:
+        message:
+          type: string
+          enum:
+            - "Registration successful"
+  409:
+    description: User failed registration
+    schema: 
+      type: object
+      properties:
+        message:
+          type: string
+          enum:
+            - "User already exists"
+
+  

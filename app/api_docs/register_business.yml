@@ -2,37 +2,57 @@ Endpoint for handling business registration
 ---
 tags:
   - Business
-description: Registers business
-
 parameters:
-  - name: name 
+  - name: body
+    description: a json object with business details
     in: body
-    type: string
     required: true
-    example: andela  
-  - name: category 
-    in: body
+    schema:
+      type: object
+      required:
+        - "name"
+        - "category"
+        - "location"
+        - "description"
+        - "createdby"
+      properties:
+        name:
+          type: "string"
+          example: "Andela"
+        category:
+          type: "string"
+          example: "Technology"
+        location:
+          type: "string"
+          example: "Kampala"
+        description:
+          type: "string"
+          example: "This is Andela"
+        createdby:
+          type: "string"
+          example: "Fiorella"
+  - name: Authorization
+    description: A json web token to be used for each request
     type: string
+    in: header
     required: true
-    example: technology   
-  - name: location 
-    in: body
-    type: string
-    required: true
-    example: Kamwokya
-  - name: description 
-    in: body
-    type: string
-    required: true
-    example: This is andela
-  - name: createdby
-    in: body
-    type: string
-    required: true
-    example: fiorella   
+
 responses:
   200:
     description: Business created successfully
+    schema: 
+      type: object
+      properties:
+        message:
+          type: string
+          enum:
+            - "Business created successfully"
   409: 
     description: Business not created
+
+
+
+
+
+ 
    

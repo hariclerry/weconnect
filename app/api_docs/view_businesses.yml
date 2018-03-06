@@ -1,48 +1,19 @@
-Endpoint for returning all the registered businesses
+Endpoint for handling view of registered businesses
 ---
 tags:
   - Business
-description: Retrieve List of registered businesses
-
-  Business:
-    type: object
-responses:
-  200:
-    description: A list of colors (may be filtered by palette)
-    schema:
-      $ref: '#/definitions/Palette'
-    examples:
-      rgb: ['red', 'green', 'blue']
-
 parameters:
-  - name: name 
-    in: body
+  - name: Authorization
+    description: A json web token to be used for each request
     type: string
+    in: header
     required: true
-    example: andela  
-  - name: category 
-    in: body
-    type: string
-    required: true
-    example: technology   
-  - name: location 
-    in: body
-    type: string
-    required: true
-    example: Kamwokya
-  - name: description 
-    in: body
-    type: string
-    required: true
-    example: This is andela
-  - name: createdby
-    in: body
-    type: string
-    required: true
-    example: fiorella   
+
 responses:
   200:
-    description: Business created successfully
-  409: 
-    description: Business not created
-   
+    description: Businesses successfully retrieved
+    schema: 
+      type: object
+      properties:
+        "businesses":
+          type: array
