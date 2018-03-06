@@ -86,7 +86,7 @@ def signup():
 		else:
 			respond = {
 			"success": False,
-			"message": "Registration not successful",
+			"message": "User already exists",
 		    }
 			return jsonify(respond), 409 
 		   
@@ -168,6 +168,7 @@ def register_business(current_user):
 
 @main.route('/api/v1/businesses', methods=['GET'])
 @token_required
+@swag_from('../api_docs/view_businesses.yml')
 def view_businesses(current_user):
 	"""Endpoint for returning all the registered businesses """
 	if not  current_user:
