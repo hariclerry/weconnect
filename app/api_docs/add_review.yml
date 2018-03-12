@@ -1,0 +1,47 @@
+Endpoint to review business information using business id
+---
+tags:
+  - Review
+parameters:
+  - name: Authorization
+    description: A json web token to be used for each request
+    type: string
+    in: header
+    required: true
+  - name: id
+    description: The unique id of the business
+    type: string
+    in: path
+    required: true
+  - name: body
+    description: This contains review details
+    in: body
+    required: true
+    schema:
+      type: object
+      required:
+        - "review"
+      properties:
+        review_summary:
+          type: "string"
+          example: "Awesome service, will be returning soon"
+
+responses:
+  201:
+    description: Business review added successfully
+    schema: 
+      type: object
+      properties:
+        "message":
+          type: string
+          
+  404:
+    description: No businesses found
+    schema: 
+      type: object
+      properties:
+        "Message":
+          type: string
+          enum:
+            - "Can not add review to a non existing business"
+ 
