@@ -191,6 +191,7 @@ def view_businesses(current_user):
 
 @main.route('/api/v1/businesses/<businessid>', methods=['GET'])
 @token_required
+@swag_from('../api_docs/view_business.yml')
 def single_businesses(current_user, businessid):
 	"""Endpoint for returning a single business"""
 	if not  current_user:
@@ -214,6 +215,7 @@ def single_businesses(current_user, businessid):
 
 @main.route('/api/v1/businesses/<businessid>', methods=['PUT'])
 @token_required
+@swag_from('../api_docs/update_business.yml')
 def update_business(current_user, businessid):
 	"""Endpoint for handling business updates"""
 	if not  current_user:
@@ -266,6 +268,7 @@ def update_business(current_user, businessid):
 	
 @main.route('/api/v1/businesses/<businessid>', methods=['DELETE'])
 @token_required
+@swag_from('../api_docs/delete_business.yml')
 def delete_businesses(current_user, businessid):
 	"""Endpoint for handling deletion of businesses"""
 	if not  current_user:
@@ -287,8 +290,9 @@ def delete_businesses(current_user, businessid):
 		return jsonify(respond), 404
 	
 	
-@main.route('/api/v1/business/<businessid>/review', methods=['POST', 'GET'])
+@main.route('/api/v1/business/<businessid>/review', methods=['POST'])
 @token_required
+@swag_from('../api_docs/add_review.yml')
 def addreview(current_user, businessid):
 	"""Endpoint for user to add review on a particular business"""
 	if not  current_user:
@@ -319,7 +323,10 @@ def addreview(current_user, businessid):
 		                      }
 				return jsonify(respond), 409
 				
-
+@main.route('/api/v1/business/<businessid>/reviews', methods=['GET'])
+@token_required
+@swag_from('../api_docs/view_reviews.yml')
+def viewreview(current_user, businessid):
 	if request.method == 'GET':
 		reviews = review_object.view_reviews(businessid)
 		if reviews:
