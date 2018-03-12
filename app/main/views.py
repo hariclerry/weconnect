@@ -343,14 +343,14 @@ def viewreview(current_user, businessid):
 			return jsonify(respond), 200
 
 @main.route('/api/v1/auth/logout', methods=[ 'POST'])
+@swag_from('../api_docs/user_logout.yml')
 @token_required
-def logout( current_user):
-	"""Endpoint for logging out and removing a user from the session"""
-	if not  current_user:
-		abort(404)
-	session.pop('userid')
-	session.pop('username')
-	return jsonify("Successfully logged out"), 200
+def logout(current_user):
+        if 'access_token' in request.headers:
+            token = request.headers['access_token']
+            token = None
+            return jsonify({'message':"Successfully logged out"}), 200
+        return make_response(("Token required"), 499)
 
 
 @main.route('/api/v1/auth/resetpass', methods=['PUT'])
