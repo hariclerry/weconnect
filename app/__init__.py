@@ -19,8 +19,11 @@ def create_app(config_name):
 	app.config['SECRET_KEY'] = 'hard to guess string'
 	swagger = Swagger(app)
 	
+	from app.api.auth import auth as auth5_blueprint
+	app.register_blueprint(auth5_blueprint, url_prefix='/v1')
 
-	from .main import main as main_blueprint
-	app.register_blueprint(main_blueprint)
+	from app.api.main import main as main_blueprint
+	app.register_blueprint(main_blueprint, url_prefix='/v1')
+
 	
 	return app

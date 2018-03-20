@@ -44,79 +44,7 @@ def index():
 	return jsonify({"message":"Welcome to WeConnect"})
 
 
-
-@main.route('/api/v1/auth/signup', methods=['POST'])
-@swag_from('../api_docs/signup.yml')
-def signup():
-	if request.method == 'POST':
-		#passes in json data to the variable called data
-		data = request.get_json() 
-		username = data['username']
-		email = data['email']
-		password = data['password']
-		cnfpassword = data['cnfpassword']
-		if username.strip() == "":
-			error = {"message": "Invalid name"}
-			return jsonify(error)
-		if not re.match(r"([\w\.-]+)@([\w\.-]+)(\.[\w\.]+$)", email):
-			error = {"message": "Invalid Email"}
-			return jsonify(error)
-		if password.strip() == "":
-			error = {"message": "Invalid password"}
-			return jsonify(error)
-		if len(password) < 4:
-			error = {"message": "Password too short"}
-			return jsonify(error)
-		if password != cnfpassword:
-			error = {"message": "password do not match"}
-			return jsonify(error)
-		
-		for user in user_object.user_list:
-				if user['username']  == username  or  user['email'] == email :
-					return jsonify({'message': 'User already exists'})
-		#pass the details to the register method
-		res = user_object.register(username, email, password, cnfpassword)
-		if res:
-			respond = {
-			"success": True,
-			"message": "Registration successful",
-			"Data" : data
-		     }
-			return jsonify(respond), 201
-		else:
-			respond = {
-			"success": False,
-			"message": "User already exists",
-		    }
-			return jsonify(respond), 409 
-		   
-	
-@main.route('/api/v1/auth/login', methods=['POST'])
-@swag_from('../api_docs/signin.yml')
-def signin():
-
-	if request.method == 'POST': # POST request with valid input
-		data = request.get_json()
-		username = data['username']
-		password = data['password']
-		res = user_object.login(username, password)
-		if res:
-			for user in user_object.user_list:
-				if user['username'] == data["username"]:
-					session['userid'] = user['id']
-					session['username'] = username
-					# return jsonify(response="Login Successful"), 200
-					token = jwt.encode({'username' : username, 'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=30)}, 'hard to guess string',algorithm="HS256")
-					respond = {
-			                    "success": True,
-			                    "message": "Login successful",
-			                    "Token" : token.decode()
-		                    }
-					return jsonify(respond), 200
-	return jsonify(response="Wrong Username or Password"), 401
-		
-	
-@main.route('/api/v1/businesses',  methods=[ 'POST'])
+@main.route('/api/businesses',  methods=[ 'POST'])
 @token_required
 @swag_from('../api_docs/register_business.yml')
 def register_business(current_user):
@@ -166,7 +94,7 @@ def register_business(current_user):
 		return jsonify(respond), 409 
 		
 
-@main.route('/api/v1/businesses', methods=['GET'])
+@main.route('/api/businesses', methods=['GET'])
 @token_required
 @swag_from('../api_docs/view_businesses.yml')
 def view_businesses(current_user):
@@ -189,7 +117,7 @@ def view_businesses(current_user):
 
 		return jsonify(respond),  200
 
-@main.route('/api/v1/businesses/<businessid>', methods=['GET'])
+@main.route('/api/businesses/<businessid>', methods=['GET'])
 @token_required
 @swag_from('../api_docs/view_business.yml')
 def single_businesses(current_user, businessid):
@@ -213,7 +141,7 @@ def single_businesses(current_user, businessid):
 		}
 		return jsonify(respond), 404
 
-@main.route('/api/v1/businesses/<businessid>', methods=['PUT'])
+@main.route('/api/businesses/<businessid>', methods=['PUT'])
 @token_required
 @swag_from('../api_docs/update_business.yml')
 def update_business(current_user, businessid):
@@ -266,7 +194,7 @@ def update_business(current_user, businessid):
 # return jsonify("business not updated"), 409
 
 	
-@main.route('/api/v1/businesses/<businessid>', methods=['DELETE'])
+@main.route('/api/businesses/<businessid>', methods=['DELETE'])
 @token_required
 @swag_from('../api_docs/delete_business.yml')
 def delete_businesses(current_user, businessid):
@@ -290,7 +218,7 @@ def delete_businesses(current_user, businessid):
 		return jsonify(respond), 404
 	
 	
-@main.route('/api/v1/business/<businessid>/review', methods=['POST'])
+@main.route('/api/business/<businessid>/reviews', methods=['POST'])
 @token_required
 @swag_from('../api_docs/add_review.yml')
 def addreview(current_user, businessid):
@@ -323,7 +251,7 @@ def addreview(current_user, businessid):
 		                      }
 				return jsonify(respond), 409
 				
-@main.route('/api/v1/business/<businessid>/reviews', methods=['GET'])
+@main.route('/api/business/<businessid>/reviews', methods=['GET'])
 @token_required
 @swag_from('../api_docs/view_reviews.yml')
 def viewreview(current_user, businessid):
@@ -341,32 +269,4 @@ def viewreview(current_user, businessid):
 			                "Message": "No review added yet"
 		         }
 			return jsonify(respond), 200
-
-@main.route('/api/v1/auth/logout', methods=[ 'POST'])
-@swag_from('../api_docs/user_logout.yml')
-@token_required
-def logout(current_user):
-        if 'access_token' in request.headers:
-            token = request.headers['access_token']
-            token = None
-            return jsonify({'message':"Successfully logged out"}), 200
-        return make_response(("Token required"), 499)
-
-
-@main.route('/api/v1/auth/resetpass', methods=['PUT'])
-def reset_pass():
-	"""Endpoint for user password  reset"""
-	user_data = request.get_json()
-	email =  user_data['email']
-	new_password = user_data['new_password']
-	res = user_object.reset_pass(email, new_password)
-	if res:
-		for user in user_object.user_list:
-			if user.email == email:
-				user.password = new_password
-				return jsonify('Password reset, now login'), 200
-	return jsonify("Password not reset")
-
-  
-   
 
