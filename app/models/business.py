@@ -61,23 +61,19 @@ class Business(object):
 		# return False
 	def update(self, businessid, name, category, location, description, createdby):
 		""" Find a business with the given id and update its details"""
+		counter = 0
 		for business in self.business_list:
-			if business['id'] == businessid:
-				self.business_list.remove(business)
-				if self.existing_business(name, location, createdby):
-					return "Business cannot be updated, a similar business exists"
-			else:
-					business['name'] = name
-					business['category'] = category
-					business['location'] = location
-					business['description'] = description
-					business['createdby'] = createdby
-					business['id'] = businessid
-					self.business_list.append(self.business_details)
-					return "update successful"
+			if str(business['id']) == businessid:
+				business['name'] = name
+				business['category'] = category
+				business['location'] = location
+				business['description'] = description
+				business['createdby'] = createdby
+				self.business_list[counter] = business
+			counter += 1
+		return "Business updated"
 
-		else:
-		 	return "no Business with given id"
+		
 
 	def delete(self, businessid):
 		""" A method to delete a business from business list"""

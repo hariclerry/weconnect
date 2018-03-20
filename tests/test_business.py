@@ -69,6 +69,6 @@ class BusinessTests(unittest.TestCase):
     	business_id = self.business.business_list[0]['id']
     	#update business
     	res = self.business.update("infoclan", "technology", "gulu", "world changers", "clerry", business_id)
-    	self.assertEqual(res, "update successful")
+    	self.assertEqual(res, "Business updated")
     
   

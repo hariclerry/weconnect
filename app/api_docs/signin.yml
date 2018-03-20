@@ -2,22 +2,52 @@ Endpoint for handling user login
 ---
 tags:
   - User
-description: Logs in User
-
 parameters:
-  - name: username
+  - name: body
+    description: This contains login details
     in: body
-    type: string
     required: true
-    example: fiorella     
-  - name: password
-    in: body
-    type: string
-    required: true
-    example: fiore55a     
+    schema:
+      type: object
+      required:
+        - "username"
+        - "password"
+      properties:
+        username:
+          type: "string"
+          example: "fiorella"
+        password:
+          type: "string"
+          format: password
+          example: "fiore55a"
+
 responses:
   200:
-    description: Login successful
-  401: 
-    description: wrong username or password
-   
+    description: User login successful
+    schema: 
+      type: object
+      properties:
+        message:
+          type: string
+          enum:
+            - "login successful."
+        x-access_token:
+          type: string      
+  401:
+    description: User crdentials wrong
+    schema: 
+      type: object
+      properties:
+        message:
+          type: string
+          enum:
+            - "wrong username or password"
+           
+ 
+
+
+
+
+
+
+

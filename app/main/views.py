@@ -38,6 +38,10 @@ def token_required(f):
 
 
 
+@main.route('/', methods=['GET'])
+
+def index():
+	return jsonify({"message":"Welcome to WeConnect"})
 
 
 
@@ -82,7 +86,7 @@ def signup():
 		else:
 			respond = {
 			"success": False,
-			"message": "Registration not successful",
+			"message": "User already exists",
 		    }
 			return jsonify(respond), 409 
 		   
@@ -164,6 +168,7 @@ def register_business(current_user):
 
 @main.route('/api/v1/businesses', methods=['GET'])
 @token_required
+@swag_from('../api_docs/view_businesses.yml')
 def view_businesses(current_user):
 	"""Endpoint for returning all the registered businesses """
 	if not  current_user:
@@ -186,6 +191,7 @@ def view_businesses(current_user):
 
 @main.route('/api/v1/businesses/<businessid>', methods=['GET'])
 @token_required
+@swag_from('../api_docs/view_business.yml')
 def single_businesses(current_user, businessid):
 	"""Endpoint for returning a single business"""
 	if not  current_user:
@@ -209,11 +215,12 @@ def single_businesses(current_user, businessid):
 
 @main.route('/api/v1/businesses/<businessid>', methods=['PUT'])
 @token_required
+@swag_from('../api_docs/update_business.yml')
 def update_business(current_user, businessid):
 	"""Endpoint for handling business updates"""
 	if not  current_user:
 		abort(404)
-	businessid = uuid.UUID(businessid)
+	# businessid = uuid.UUID(businessid)
 	business_data = request.get_json()
 	name = business_data['name'].strip()
 	category = business_data['category'].strip()
@@ -236,6 +243,10 @@ def update_business(current_user, businessid):
 	if createdby == "":
 		message = {"message": "invalid input"}
 		return jsonify(message)
+	
+	# for business in business_object.business_list:
+	# 	if business['name'] ==  business_data['name'] or business['location'] ==  business_data['location']:
+	# 		return jsonify("Business already Exist"), 409
 
 	res = business_object.update(businessid, name, category, location, description, createdby)
 	if res:
@@ -257,6 +268,7 @@ def update_business(current_user, businessid):
 	
 @main.route('/api/v1/businesses/<businessid>', methods=['DELETE'])
 @token_required
+@swag_from('../api_docs/delete_business.yml')
 def delete_businesses(current_user, businessid):
 	"""Endpoint for handling deletion of businesses"""
 	if not  current_user:
@@ -278,8 +290,9 @@ def delete_businesses(current_user, businessid):
 		return jsonify(respond), 404
 	
 	
-@main.route('/api/v1/business/<businessid>/review', methods=['POST', 'GET'])
+@main.route('/api/v1/business/<businessid>/review', methods=['POST'])
 @token_required
+@swag_from('../api_docs/add_review.yml')
 def addreview(current_user, businessid):
 	"""Endpoint for user to add review on a particular business"""
 	if not  current_user:
@@ -287,7 +300,7 @@ def addreview(current_user, businessid):
 	# businessid = uuid.UUID(businessid)
 	if request.method == 'POST': # POST request with valid input
 		review_data = request.get_json()
-		review = review_data['add_review'].strip()
+		review = review_data['review'].strip()
 
 		if review == "":
 			message = {"message": "Invalid review"}
@@ -310,14 +323,17 @@ def addreview(current_user, businessid):
 		                      }
 				return jsonify(respond), 409
 				
-
+@main.route('/api/v1/business/<businessid>/reviews', methods=['GET'])
+@token_required
+@swag_from('../api_docs/view_reviews.yml')
+def viewreview(current_user, businessid):
 	if request.method == 'GET':
 		reviews = review_object.view_reviews(businessid)
 		if reviews:
 			respond = {
 			            "Success": True,
 			            "Message": "Reviews for this particular business",
-						 "Data": review_data
+						 "Data": reviews
 		                  }
 			return jsonify(respond), 200
 		else:
@@ -327,14 +343,14 @@ def addreview(current_user, businessid):
 			return jsonify(respond), 200
 
 @main.route('/api/v1/auth/logout', methods=[ 'POST'])
+@swag_from('../api_docs/user_logout.yml')
 @token_required
-def logout( current_user):
-	"""Endpoint for logging out and removing a user from the session"""
-	if not  current_user:
-		abort(404)
-	session.pop('userid')
-	session.pop('username')
-	return jsonify("Successfully logged out"), 200
+def logout(current_user):
+        if 'access_token' in request.headers:
+            token = request.headers['access_token']
+            token = None
+            return jsonify({'message':"Successfully logged out"}), 200
+        return make_response(("Token required"), 499)
 
 
 @main.route('/api/v1/auth/resetpass', methods=['PUT'])
