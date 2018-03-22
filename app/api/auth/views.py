@@ -48,59 +48,33 @@ def signup():
 	try:
 		db.session.add(user)
 		db.session.commit()
-		message = 'Successfully signed up'
+		if user:
+			respond = {
+			"success": True,
+			"message": "Registration successful",
+			"Data" : data
+		     }
+			return jsonify(respond), 201
 	except:
 		return make_response(("User already exists"), 401)
-		db.session.close()
-	return jsonify({'message':message})
+	db.session.close()
+	return jsonify({"fill all fields"})
 
 
-	# if request.method == 'POST':
-	# 	#passes in json data to the variable called data
-	# 	data = request.get_json() 
-	# 	username = data['username']
-	# 	email = data['email']
-	# 	password = data['password']
-	# 	cnfpassword = data['cnfpassword']
-	# 	if username.strip() == "":
-	# 		error = {"message": "Invalid name"}
-	# 		return jsonify(error)
-	# 	if not re.match(r"([\w\.-]+)@([\w\.-]+)(\.[\w\.]+$)", email):
-	# 		error = {"message": "Invalid Email"}
-	# 		return jsonify(error)
-	# 	if password.strip() == "":
-	# 		error = {"message": "Invalid password"}
-	# 		return jsonify(error)
-	# 	if len(password) < 4:
-	# 		error = {"message": "Password too short"}
-	# 		return jsonify(error)
-	# 	if password != cnfpassword:
-	# 		error = {"message": "password do not match"}
-	# 		return jsonify(error)
-		
-	# 	for user in user_object.user_list:
-	# 			if user['username']  == username  or  user['email'] == email :
-	# 				return jsonify({'message': 'User already exists'})
-	# 	#pass the details to the register method
-	# 	res = user_object.register(username, email, password, cnfpassword)
-	# 	if res:
-	# 		respond = {
-	# 		"success": True,
-	# 		"message": "Registration successful",
-	# 		"Data" : data
-	# 	     }
-	# 		return jsonify(respond), 201
-	# 	else:
-	# 		respond = {
-	# 		"success": False,
-	# 		"message": "User already exists",
-	# 	    }
-	# 		return jsonify(respond), 409 
-		   
+
 	
-# @auth.route('/api/auth/login', methods=['POST'])
-# @swag_from('../api_docs/signin.yml')
-# def signin():
+@auth.route('/api/auth/login', methods=['POST'])
+@swag_from('../api_docs/signin.yml')
+def signin():
+	
+	data=request.get_json()
+	if not data['email'] or not data['password']:
+		return make_response(('Authorize with all credentials'), 401)
+	user = User.query.filter_by( email = data['email']).first()
+	if not user:
+		return make_response(('user does not exist'), 401)
+	
+	return make_response(("You are successfully Logged In"), 401)
 
 # 	if request.method == 'POST': # POST request with valid input
 # 		data = request.get_json()
