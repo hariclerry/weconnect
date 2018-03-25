@@ -1,127 +1,137 @@
 """This module defines the application endpoints"""
 
 from flask import request, jsonify, url_for, session, make_response, abort
+import jwt
 from flasgger import swag_from
 from functools import wraps
-import jwt
 import datetime
 import re
+# from flask.views import MethodView
+# from werkzeug.security import generate_password_hash, check_password_hash
 from . import auth
 from app import db, models
 from app.api.models import User
 
 
 
-# def token_required(f):
-#     @wraps(f)
-#     def decorated(*args, **kwargs):
-#         token = None
-#         current_user = ""
-
-#         if 'x-access-token' in request.headers:
-#             token = request.headers['x-access-token']
-
-#         if not token:
-#             return jsonify({'message' : 'Token is required!'}), 401
-
-#         try: 
-#             data = jwt.decode(token, 'hard to guess string')
-#             for user in user_object.user_list:
-#                 if user.get("username"):
-#                     current_user = user['username']= data['username']
-#         except:
-#             return jsonify({'message' : 'Token is invalid!'}), 401
-
-#         return f(current_user, *args, **kwargs)
-
-#     return decorated
 
 
-
+def token_required(funct):
+    @wraps(funct)
+    def decorated_funct(*args, **kwargs):
+        token = None
+        if 'access_token' in request.headers:
+            token = request.headers['access_token']
+            if not token:
+                return jsonify({"message":"Token is missing"}), 401
+            try:
+                data = jwt.decode(token, 'hard to guess string')
+                user = User.query.filter_by(id=data['sub']).first()
+                current_user = user
+            except:
+                return jsonify({"message":"Token is invalid"}), 401
+            return funct(current_user, *args, **kwargs)
+        else:
+            return jsonify({"error": "Token required"}), 401
+    return decorated_funct
 
 @auth.route('/api/auth/register', methods=['POST'])
 @swag_from('../api_docs/signup.yml')
 def signup():
 
+	"""This Endpoint handles registration of  new users."""
+
 	data = request.get_json()
+    # Query to see if the user already exists
+	user = User.query.filter_by( email = data['email']).first()
+
+	if user:
+		respond = {
+                        'message': 'User already exists. Please login'
+                    }
+		return make_response(jsonify(respond)), 409
+
+	# if there is no user with such email address, register the new user
 	user = User(data['username'], data['email'], data['password'])
-	try:
-		db.session.add(user)
-		db.session.commit()
-		if user:
-			respond = {
+	user.save()
+	respond = {
 			"success": True,
-			"message": "Registration successful",
+			"message": "Registration successful. Please login",
 			"Data" : data
 		     }
-			return jsonify(respond), 201
-	except:
-		return make_response(("User already exists"), 401)
-	db.session.close()
-	return jsonify({"fill all fields"})
+	return jsonify(respond), 201
 
-
-
-	
 @auth.route('/api/auth/login', methods=['POST'])
-@swag_from('../api_docs/signin.yml')
+# @swag_from('../api_docs/signin.yml')
 def signin():
+    
+	"""This Endpoint handles user login and access token generation."""
+
+	data = request.get_json()
 	
-	data=request.get_json()
-	if not data['email'] or not data['password']:
-		return make_response(('Authorize with all credentials'), 401)
+	# Get the user object using their email (unique to every user)
 	user = User.query.filter_by( email = data['email']).first()
-	if not user:
-		return make_response(('user does not exist'), 401)
-	
-	return make_response(("You are successfully Logged In"), 401)
-
-# 	if request.method == 'POST': # POST request with valid input
-# 		data = request.get_json()
-# 		username = data['username']
-# 		password = data['password']
-# 		res = user_object.login(username, password)
-# 		if res:
-# 			for user in user_object.user_list:
-# 				if user['username'] == data["username"]:
-# 					session['userid'] = user['id']
-# 					session['username'] = username
-# 					# return jsonify(response="Login Successful"), 200
-# 					token = jwt.encode({'username' : username, 'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=30)}, 'hard to guess string',algorithm="HS256")
-# 					respond = {
-# 			                    "success": True,
-# 			                    "message": "Login successful",
-# 			                    "Token" : token.decode()
-# 		                    }
-# 					return jsonify(respond), 200
-# 	return jsonify(response="Wrong Username or Password"), 401
+	# Try to authenticate the found user using their password
+	if user and user.password_is_valid(data['password']):
+		# Generate the access token. This will be used as the authorization header
+		access_token = user.generate_token(user.id)
+		if access_token:
+				respond = {
+                        'message': 'You logged in successfully.',
+                        'access_token': access_token.decode()
+                    }
+				return make_response(jsonify(respond)), 200
 		
-	
-# @auth.route('/api/auth/logout', methods=[ 'POST'])
-# @swag_from('../api_docs/user_logout.yml')
+	# User does not exist. Therefore, return an error message
+	else:
+		respond = {
+                    'message': 'Invalid email or password, Please try again'
+                }
+		return make_response(jsonify(respond)), 401
+
+@auth.route('api/auth/reset_password', methods = ['POST'])
+# @swag_from('../api-docs/v1/reset_password.yml')
 # @token_required
-# def logout(current_user):
-#         if 'access_token' in request.headers:
-#             token = request.headers['access_token']
-#             token = None
-#             return jsonify({'message':"Successfully logged out"}), 200
-#         return make_response(("Token required"), 499)
+def reset_password():
+    data = request.get_json()
+    if not data['email'] or not data['old_password'] or not data['new_password']:
+        return make_response(("Fill all credentials"),401)
+    user = User.query.filter_by( email = data['email']).first()
+    if not user:
+        return make_response(("Wrong email"), 401)
+    if check_password_hash(user.password, data['old_password']):
+        user.password = data['new_password']
+        return make_response(("Successfully changed password"), 200)
+    return make_response(("Input correct old password"), 401)
+
+@auth.route('api/auth/logout', methods = ['POST'])
+# @swag_from('../api-docs/v1/logout_user.yml')
+@token_required
+def logout(current_user):
+    return make_response(("Successfully logged out"), 200)
 
 
-# @auth.route('/api/auth/reset-password', methods=['PUT'])
-# def reset_pass():
-# 	"""Endpoint for user password  reset"""
-# 	user_data = request.get_json()
-# 	email =  user_data['email']
-# 	new_password = user_data['new_password']
-# 	res = user_object.reset_pass(email, new_password)
-# 	if res:
-# 		for user in user_object.user_list:
-# 			if user.email == email:
-# 				user.password = new_password
-# 				return jsonify('Password reset, now login'), 200
-# 	return jsonify("Password not reset")
 
-  
-   
 
+
+
+
+
+	
+# @auth.route('/api/auth/login', methods=['POST'])
+# @swag_from('../api_docs/signin.yml')
+# def signin():
+# 	data=request.get_json()
+# 	if not data['email'] or not data['password']:
+# 		return make_response(('Authorize with all credentials'), 401)
+	
+# 	user = User.query.filter_by( email = data['email']).first()
+# 	if not user:
+# 		return make_response(('User does not exist'), 401)
+# 	if check_password_hash(user.password, data['password']):
+# 		token = jwt.encode({
+#                         "exp": datetime.datetime.utcnow() + datetime.timedelta(days = 0, minutes = 45),
+#                         "iat": datetime.datetime.utcnow(),
+#                         "sub": user.id}, 'hard to guess string', algorithm = 'HS256')
+# 		return jsonify({'token':token})
+# 	return make_response(("Login with correct password"), 401)
