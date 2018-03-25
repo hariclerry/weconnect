@@ -4,6 +4,8 @@ class Config(object):
     """
     Common configurations
     """
+    SECRET_KEY = 'hard to guess string'
+
     SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL')
     # Put any configurations here that are common across all environments
 class TestingConfig(Config):
