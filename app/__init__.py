@@ -1,11 +1,12 @@
 # third-party imports
 import os
 from flask import Flask
-from app.models import user, business, review
-from config import app_config
 from flasgger import Swagger
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+# from app.models import user, business, review
+from config import app_config
+
 
 # from app import db
 
