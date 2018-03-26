@@ -119,10 +119,9 @@ class Review(db.Model):
     __tablename__ = 'reviews'
     id = db.Column(db.Integer, primary_key=True)
     description = db.Column(db.String(500), nullable=False)
-    added_by = db.Column(db.Integer, db.ForeignKey(User.id))
+    # added_by = db.Column(db.Integer, db.ForeignKey(User.id))
     businessId = db.Column(db.Integer, db.ForeignKey('businesses.id'))
-    def __init__(self, description, added_by, businessId):
+    def __init__(self, description, businessId):
         self.description = description
-        self.added_by = added_by
         self.businessId = businessId
         db.create_all()
