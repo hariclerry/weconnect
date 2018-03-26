@@ -317,7 +317,7 @@ def addreview(id):
             review = Review(description=data['description'],businessId=id)
             db.session.add(review)
             db.session.commit()
-            message = "Successfully added"
+            message = "Successfully Added Review"
         except:
             return make_response(("Exited with error"), 401)
     else:
@@ -352,15 +352,15 @@ def addreview(id):
 # 		                      }
 # 				return jsonify(respond), 409
 				
-@main.route('/api/business/<businessid>/reviews', methods=['GET'])
+@main.route('/api/business/<id>/reviews', methods=['GET'])
 # @token_required
 # @swag_from('../api_docs/view_reviews.yml')
 def viewreview(id):
-
-     data=request.get_json()
+    
+    # data=request.get_json()
     business = Business.query.filter_by(id=id).first()
     if business:
-        all_reviews = models.Review.query.all()
+        all_reviews = Review.query.all()
         reviews = []
         for review in all_reviews:
             output = {
