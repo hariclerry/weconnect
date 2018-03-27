@@ -4,17 +4,8 @@ from flask import Flask
 from flasgger import Swagger
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-# from app.models import user, business, review
 from config import app_config
 
-
-# from app import db
-
-# local imports
-#import the user, business and review classes
-# user_object = user.UserDetails()
-# business_object = business.Business()
-# review_object = review.Review()
 
 
 # db variable initialization
