@@ -6,8 +6,6 @@ from flasgger import swag_from
 from functools import wraps
 import datetime
 import re
-# from flask.views import MethodView
-# from werkzeug.security import generate_password_hash, check_password_hash
 from . import auth
 from app import db, models
 from app.api.models import User
@@ -99,39 +97,14 @@ def reset_password():
     user = User.query.filter_by( email = data['email']).first()
     if not user:
         return make_response(("Wrong email"), 401)
-    if check_password_hash(user.password, data['old_password']):
+    if user.password_is_valid(user.password, data['old_password']):
         user.password = data['new_password']
         return make_response(("Successfully changed password"), 200)
     return make_response(("Input correct old password"), 401)
 
 @auth.route('api/auth/logout', methods = ['POST'])
 # @swag_from('../api-docs/v1/logout_user.yml')
-@token_required
-def logout(current_user):
+# @token_required
+def logout():
     return make_response(("Successfully logged out"), 200)
 
-
-
-
-
-
-
-
-	
-# @auth.route('/api/auth/login', methods=['POST'])
-# @swag_from('../api_docs/signin.yml')
-# def signin():
-# 	data=request.get_json()
-# 	if not data['email'] or not data['password']:
-# 		return make_response(('Authorize with all credentials'), 401)
-	
-# 	user = User.query.filter_by( email = data['email']).first()
-# 	if not user:
-# 		return make_response(('User does not exist'), 401)
-# 	if check_password_hash(user.password, data['password']):
-# 		token = jwt.encode({
-#                         "exp": datetime.datetime.utcnow() + datetime.timedelta(days = 0, minutes = 45),
-#                         "iat": datetime.datetime.utcnow(),
-#                         "sub": user.id}, 'hard to guess string', algorithm = 'HS256')
-# 		return jsonify({'token':token})
-# 	return make_response(("Login with correct password"), 401)
