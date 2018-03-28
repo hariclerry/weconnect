@@ -23,7 +23,7 @@ class User(db.Model):
         self.username = username
         self.email = email
         self.password = Bcrypt().generate_password_hash(password).decode()
-        # db.create_all()
+        db.create_all()
     def password_is_valid(self, password):
         """
         Checks the password against it's hash to validates the user's password
@@ -84,23 +84,53 @@ class Business(db.Model):
     name = db.Column(db.String(60), nullable=False, unique=True)
     category = db.Column(db.String(60),  nullable=False)
     location = db.Column(db.String(60),  nullable=False)
-    description = db.Column(db.String(500), nullable=False)
-    # created_by = db.Column(db.String(500), nullable=False)
+    description = db.Column(db.String(60), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    reviews = db.relationship('Review', order_by='Review.id', cascade="all, delete-orphan")
+    reviews = db.relationship('Review', backref='businesses', order_by='Review.id', cascade="all, delete-orphan")
     
     def __init__(self, name, category, location, description):
         self.name = name
         self.category = category
         self.location = location
         self.description = description
-        # self.created_by = created_by
-        # db.create_all()
+        db.create_all()
     
     def save(self):
         db.session.add(self)
         db.session.commit()
+        
+    @staticmethod
+    def get_businesses(page, limit, search_string, filters):
+        """ returns all businesses"""       
 
+        result = Business.query
+
+        if search_string is not None:
+            result = result.filter(Business.name.like("%"+search_string+"%"))
+
+        if bool(filters):
+            result = result.filter_by(**filters)
+
+        paginate = result.paginate(page, limit, False)
+
+        businesses = paginate.items
+        output = []
+        for business in businesses:
+            business_object = {
+                'id':business.id,
+                'name':business.name,
+                'category':business.category,
+                'location':business.location,
+                'description':business.description
+            }
+            output.append(business_object)
+        next_page = paginate.next_num \
+            if paginate.has_next else None
+        prev_page = paginate.prev_num \
+            if paginate.has_prev else None
+        if len(output) > 0:
+            return {"success":True, "businesses":output, "next_page":next_page, "prev_page":prev_page}
+        return {"success":False, "businesses":output}
     @staticmethod
     def get_all():
         return Business.query.all()
@@ -119,7 +149,6 @@ class Review(db.Model):
     __tablename__ = 'reviews'
     id = db.Column(db.Integer, primary_key=True)
     description = db.Column(db.String(500), nullable=False)
-    # added_by = db.Column(db.Integer, db.ForeignKey(User.id))
     businessId = db.Column(db.Integer, db.ForeignKey('businesses.id'))
     def __init__(self, description, businessId):
         self.description = description
