@@ -10,8 +10,11 @@ from app import db, models
 from app.api.auth.views import token_required
 from app.api.models import Business, Review
 from . import main
+from ..business_service import BusinessService
 
+BS = BusinessService()
 
+BUSINESSES_PER_PAGE = 3
 
 
 @main.route('/', methods=['GET'])
@@ -64,23 +67,20 @@ def register_business():
 # @swag_from('../api_docs/view_businesses.yml')
 def view_businesses():
     
-    """Endpoint for returning all the registered businesses """
-    
-    businesses = Business.get_all()
-    results = []
-    for business in businesses:
-                data = {
-                    'id': business.id,
-                    'name': business.name,
-                    'category': business.category,
-                    'location': business.location,
-                    'description': business.description
-                    }
-                results.append(data)
-    return jsonify(results), 200
-    
+    """
+    get businesses, search by name, filter by location, categoory
+    paginate result
+    """
+    search_string = request.args.get('q', None)
+    location = request.args.get('location', None)
+    category = request.args.get('category', None)
 
+    # get page nuumber
+    page = request.args.get('page', 1, type=int)
+    limit = request.args.get('limit', BUSINESSES_PER_PAGE, type=int)
 
+    return BS.get_businesses(page, limit, search_string, location, category)
+    
 @main.route('/api/businesses/<id>', methods=['GET'])
 # @token_required
 # @swag_from('../api_docs/view_business.yml')
@@ -96,9 +96,6 @@ def single_businesses(id):
         output['description'] = business.description
         return jsonify({"business":output}),  200
     return make_response(("Business does not exist"), 401)
-
-
-
 
 @main.route('/api/businesses/<id>', methods=['PUT'])
 # @token_required
