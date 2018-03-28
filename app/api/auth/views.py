@@ -8,7 +8,7 @@ from functools import wraps
 import datetime
 import re
 from . import auth
-from api import db, models
+from .api import db, models
 from app.api.models import User
 
 
