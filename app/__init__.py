@@ -11,7 +11,7 @@ from config import app_config
 # db variable initialization
 db = SQLAlchemy()
 
-
+from app.api import models
 
 def create_app(config_name):
 	# Initialize flask app
@@ -24,7 +24,7 @@ def create_app(config_name):
 	migrate = Migrate(app, db)
 
 
-	from app import models
+	
     
 	from app.api.auth import auth as auth5_blueprint
 	app.register_blueprint(auth5_blueprint, url_prefix='/v1')
