@@ -10,7 +10,7 @@ from app import db, models
 from app.api.auth.views import token_required
 from app.api.models import Business, Review
 from . import main
-from ..business_service import BusinessService
+from app.api.service.business_service import BusinessService
 
 BS = BusinessService()
 
@@ -31,7 +31,7 @@ def register_business():
     """Endpoint for handling business registration """
     
     # sent data from postman is converted to a python dictionary
-    data = request.get_json()
+    data = request.get_json(force=True)
 
     name = data['name']
     category = data['category']
@@ -53,7 +53,7 @@ def register_business():
                     'description': business.description
                     # 'created_by': business.created_by
                  })
-        return jsonify(response), 200
+        return jsonify(response), 201
 
     return make_response(
                 jsonify({
