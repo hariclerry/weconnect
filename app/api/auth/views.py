@@ -88,29 +88,27 @@ def signin():
                 }
 		return make_response(jsonify(respond)), 401
 
-@auth.route('api/auth/reset_password', methods = ['POST'])
+@auth.route('/api/auth/reset_password', methods = ['POST'])
 # @swag_from('../api-docs/v1/reset_password.yml')
-# @token_required
-def reset_password():
+@token_required
+def reset_password(current_user):
 
-        response_data = {"message": "fail"}
+    data = request.get_json()
+    if not data['email'] or not data['old_password'] or not data['new_password']:
+        return make_response(("Fill all credentials"),401)
+    user = models.User.query.filter_by(email = data['email']).first()
+    if not user:
+        return make_response(("Wrong email"), 401)
+    else:
+        if user.password_is_valid(user.password):
+            user.password = data['new_password']
+            return make_response(("Successfully changed password"), 200)
+        return make_response(("Input correct old password"), 401)
 
-        data = request.data["user"]
-        user = User.query.filter_by(id=data.id).first()
-
-        password = "alternat5" + str(random.randrange(10000))
-        user.password_hash =  user.password_is_valid(password)
-        db.session.commit()
-
-        response_data["message"] = "User password reset"
-        response_data["new_password"] = password
-        response = jsonify(response_data)
-        response.status_code = 200  # Post update success
-
-        return response
+      
 
 
-@auth.route('api/auth/logout', methods = ['POST'])
+@auth.route('/api/auth/logout', methods = ['POST'])
 # @swag_from('../api-docs/v1/logout_user.yml')
 # @token_required
 def logout():

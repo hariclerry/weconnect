@@ -2,6 +2,7 @@
 import unittest
 import os
 import json
+from app.api.main import views 
 from app import create_app, db
 
 class BusinessTestCase(unittest.TestCase):
@@ -11,7 +12,8 @@ class BusinessTestCase(unittest.TestCase):
         """Define test variables and initialize app."""
         self.app = create_app(config_name="testing")
         self.client = self.app.test_client
-        self.business = {'name': 'Clerry Construction Ltd'}
+        self.business = {'name': 'Clerry Construction Ltd', 'category': 'Property', 'location': 'Gulu', 'description': 'awesome'}
+        
 
         # binds the app to the current context
         with self.app.app_context():
@@ -20,15 +22,15 @@ class BusinessTestCase(unittest.TestCase):
 
     def test_business_registration(self):
         """Test API can create a business (POST request)"""
-        res = self.client().post('api/businesses/', data=self.business)
+        res = self.client().post('v1/api/businesses', data=self.business)
         self.assertEqual(res.status_code, 201)
         self.assertIn('Clerry Construction Ltd', str(res.data))
 
     def test_api_can_get_all_businesses(self):
         """Test API can get a business (GET request)."""
-        res = self.client().post('/business/', data=self.business)
+        res = self.client().post('v1/api/businesses', data=self.business)
         self.assertEqual(res.status_code, 201)
-        res = self.client().get('/businesses/')
+        res = self.client().get('v1/api/businesses')
         self.assertEqual(res.status_code, 200)
         self.assertIn('Clerry Construction Ltd', str(res.data))
 

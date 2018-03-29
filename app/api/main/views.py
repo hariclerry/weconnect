@@ -24,14 +24,14 @@ def index():
 
 
 @main.route('/api/businesses',  methods=[ 'POST'])
-# @token_required
+@token_required
 # @swag_from('../api_docs/register_business.yml')
 def register_business():
 
     """Endpoint for handling business registration """
     
     # sent data from postman is converted to a python dictionary
-    data = request.get_json(force=True)
+    data = request.get_json(silent=True)
 
     name = data['name']
     category = data['category']
