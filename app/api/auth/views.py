@@ -61,7 +61,7 @@ def signup():
 	return jsonify(respond), 201
 
 @auth.route('/api/auth/login', methods=['POST'])
-# @swag_from('../api_docs/signin.yml')
+@swag_from('../api_docs/signin.yml')
 def signin():
     
 	"""This Endpoint handles user login and access token generation."""
@@ -110,7 +110,7 @@ def reset_password(current_user):
 
 @auth.route('/api/auth/logout', methods = ['POST'])
 # @swag_from('../api-docs/v1/logout_user.yml')
-# @token_required
+@token_required
 def logout():
     return make_response(("Successfully logged out"), 200)
 

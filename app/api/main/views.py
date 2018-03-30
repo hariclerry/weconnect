@@ -25,47 +25,49 @@ def index():
 
 @main.route('/api/businesses',  methods=[ 'POST'])
 @token_required
-# @swag_from('../api_docs/register_business.yml')
-def register_business():
+@swag_from('../api_docs/register_business.yml')
+def register_business(current_user):
 
     """Endpoint for handling business registration """
     
     # sent data from postman is converted to a python dictionary
-    data = request.get_json(silent=True)
+    data = request.get_json()
 
     name = data['name']
     category = data['category']
     location = data['location']
     description = data['description']
-    # created_by = data['created_by']
 
-    if data:
-        business = Business(name=name,
+    # Check to see if business with that name exists before adding a new business
+    business = Business.query.filter_by(name=name).first()
+
+    if business:
+        response = {
+                        'message': 'Business already exists'
+                    }
+        return make_response(jsonify(response)), 409
+    # adding a new business
+    business = Business(name=name,
 	                           category=category,
 							   location=location,
-                               description=description)
-        business.save()
-        response = jsonify({
+                               description=description,
+                               user_id=current_user.id)
+    business.save()
+    response = {
                     'id': business.id,
                     'name': business.name,
                     'category': business.category,
                     'location': business.location,
-                    'description': business.description
-                    # 'created_by': business.created_by
-                 })
-        return jsonify(response), 201
-
-    return make_response(
-                jsonify({
-                    'message': "Business already exists"
-                })), 409
-    
-		
+                    'description': business.description,
+                    'user_id': current_user.id,
+                    'message': "Business successfully registered"
+                 }
+    return jsonify(response), 201	
 
 @main.route('/api/businesses', methods=['GET'])
-# @token_required
-# @swag_from('../api_docs/view_businesses.yml')
-def view_businesses():
+@token_required
+@swag_from('../api_docs/view_businesses.yml')
+def view_businesses(current_user):
     
     """
     get businesses, search by name, filter by location, categoory
@@ -82,9 +84,9 @@ def view_businesses():
     return BS.get_businesses(page, limit, search_string, location, category)
     
 @main.route('/api/businesses/<id>', methods=['GET'])
-# @token_required
-# @swag_from('../api_docs/view_business.yml')
-def single_businesses(id):
+@token_required
+@swag_from('../api_docs/view_business.yml')
+def single_businesses(current_user, id):
     
     """Endpoint for returning a single business"""
     business = Business.query.filter_by(id=id).first()
@@ -98,9 +100,9 @@ def single_businesses(id):
     return make_response(("Business does not exist"), 401)
 
 @main.route('/api/businesses/<id>', methods=['PUT'])
-# @token_required
-# @swag_from('../api_docs/update_business.yml')
-def update_business(id):
+@token_required
+@swag_from('../api_docs/update_business.yml')
+def update_business(current_user, id):
     
     """Endpoint for handling business updates"""
     
@@ -121,9 +123,9 @@ def update_business(id):
 
 	
 @main.route('/api/businesses/<id>', methods=['DELETE'])
-# @token_required
-# @swag_from('../api_docs/delete_business.yml')
-def delete_businesses(id):
+@token_required
+@swag_from('../api_docs/delete_business.yml')
+def delete_businesses(current_user, id):
     
     """Endpoint for handling deletion of businesses"""
 
@@ -131,15 +133,15 @@ def delete_businesses(id):
     if business:
         business.delete()
         return jsonify({
-            "message": "Business {} deleted successfully".format(business.id)}), 200
+            "message": "Business deleted successfully" }), 200
     return make_response(("Business does not exist"),401)
 
 	
 	
 @main.route('/api/business/<id>/reviews', methods=['POST'])
-# @token_required
-# @swag_from('../api_docs/add_review.yml')
-def addreview(id):
+@token_required
+@swag_from('../api_docs/add_review.yml')
+def addreview(current_user, id):
     
     """Endpoint for user to add review on a particular business"""
 
@@ -150,18 +152,21 @@ def addreview(id):
             review = Review(description=data['description'],businessId=id)
             db.session.add(review)
             db.session.commit()
-            message = "Successfully Added Review"
+            response = {"Messgae": "Successfully Added Review",
+                        "Description": data
+                    }
         except:
             return make_response(("Exited with error"), 401)
     else:
         return make_response(("Business does not exist"), 401)
-    return jsonify({"messgae":message})
+    return jsonify(response), 201	
+
 
 				
 @main.route('/api/business/<id>/reviews', methods=['GET'])
-# @token_required
-# @swag_from('../api_docs/view_reviews.yml')
-def viewreview(id):
+@token_required
+@swag_from('../api_docs/view_reviews.yml')
+def viewreview(current_user,id):
 
     """Endpoint for viewing added reviews for a particular business"""
     
