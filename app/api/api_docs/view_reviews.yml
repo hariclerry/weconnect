@@ -1,0 +1,25 @@
+Endpoint to get all of a business's reviews
+---
+tags:
+  - Review
+parameters:
+  - name: Authorization
+    description: A json web token to be used for each request
+    type: string
+    in: header
+    required: true
+  - name: id
+    description: The unique id of the business
+    type: string
+    in: path
+    required: true
+
+responses:
+  200:
+    description: Reviews found
+    schema: 
+      type: object
+      properties:
+        "reviews: ":
+          type: array
+ 

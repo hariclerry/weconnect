@@ -14,7 +14,6 @@ parameters:
         - "category"
         - "location"
         - "description"
-        - "createdby"
       properties:
         name:
           type: "string"
@@ -28,9 +27,6 @@ parameters:
         description:
           type: "string"
           example: "This is Andela"
-        createdby:
-          type: "string"
-          example: "Fiorella"
   - name: Authorization
     description: A json web token to be used for each request
     type: string
@@ -46,9 +42,18 @@ responses:
         message:
           type: string
           enum:
-            - "Business created successfully"
-  409: 
+            - "Business successfully registered"
+  409:
     description: Business not created
+    schema: 
+      type: object
+      properties:
+        message:
+          type: string
+          enum:
+            - "Business already exists"
+
+
 
 
 

@@ -8,9 +8,16 @@ install:
   - pip install nosexcover
   - pip install -r requirements.txt
 
-script:
-  - nosetests --with-xcoverage --cover-package=app.models --cover-tests
-
+services:
+  - postgresql
+env:
+  global:
+    - export SECRET="it_is_awesome"
+    - export APP_SETTINGS="development"
+    - export DATABASE_URL="postgresql://postgres:clerry@localhost/weconnect"
+before_script:
+  - psql -c "CREATE DATABASE weconnect;" -U postgres
 after_success:
-  - coverage report
-  - coveralls
+  coveralls
+script:
+- nosetests --with-coverage --cover-package=app/api && coverage report

@@ -20,7 +20,7 @@ parameters:
     schema:
       type: object
       required:
-        - "review"
+        - "description"
       properties:
         review_summary:
           type: "string"
@@ -43,5 +43,5 @@ responses:
         "Message":
           type: string
           enum:
-            - "Can not add review to a non existing business"
+            - "Business does not exist"
  

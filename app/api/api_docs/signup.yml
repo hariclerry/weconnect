@@ -13,7 +13,6 @@ parameters:
         - "username"
         - "email"
         - "password"
-        - "cnfpassword"
       properties:
         username:
           type: "string"
@@ -25,11 +24,6 @@ parameters:
           type: "string"
           format: password
           example: "fiore55a"
-        cnfpassword:
-          type: "string"
-          format: password
-          example: "fiore55a"
-
 responses:
   200:
     description: User successfuly registered
@@ -39,7 +33,7 @@ responses:
         message:
           type: string
           enum:
-            - "Registration successful"
+            - "Registration successful. Please login"
   409:
     description: User failed registration
     schema: 

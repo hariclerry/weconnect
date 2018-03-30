@@ -1,4 +1,4 @@
-Endpoint to delete business information using an id value
+Endpoint to update business information using an id value
 ---
 tags:
   - Business
@@ -16,20 +16,29 @@ parameters:
 
 responses:
   200:
-    description: Business deleted
+    description: Business detail update successful
     schema: 
       type: object
       properties:
-        "Message":
+        "message":
           type: object
           enum:
-            - "Successfully deleted"
+          - "Successfully updated business"
   404:
-    description: No business found
+    description: No businesses found
     schema: 
       type: object
       properties:
         "Message":
           type: string
           enum:
-            - "No business with given id"
+            - "Business does not exist"
+  499:
+    description: A token error, invalid token or missing token
+    schema: 
+      type: object
+      properties:
+        Token Error:
+          type: string
+          enum:
+            - "You do not have authorization"
