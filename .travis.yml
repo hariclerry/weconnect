@@ -20,4 +20,4 @@ before_script:
 after_success:
   coveralls
 script:
-- nosetests --with-xcoverage --cover-package=app/api --cover-tests
+- nosetests --with-coverage --cover-package=app/api && coverage report
