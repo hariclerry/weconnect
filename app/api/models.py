@@ -88,11 +88,12 @@ class Business(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     reviews = db.relationship('Review', backref='businesses', order_by='Review.id', cascade="all, delete-orphan")
     
-    def __init__(self, name, category, location, description):
+    def __init__(self, name, category, location, description, user_id):
         self.name = name
         self.category = category
         self.location = location
         self.description = description
+        self.user_id = user_id
         db.create_all()
     
     def save(self):
