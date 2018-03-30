@@ -1,6 +1,6 @@
 
-[![Build Status](https://travis-ci.org/hariclerry/weconnect.svg?branch=feature%2Fchallenge2)](https://travis-ci.org/hariclerry/weconnect)
-[![Coverage Status](https://coveralls.io/repos/github/hariclerry/weconnect/badge.svg?branch=feature/challenge2)](https://coveralls.io/github/hariclerry/weconnect?branch=feature/challenge2)
+[![Build Status](https://travis-ci.org/hariclerry/weconnect.svg?branch=fearture_challenge3_api)](https://travis-ci.org/hariclerry/weconnect)
+[![Coverage Status](https://coveralls.io/repos/github/hariclerry/weconnect/badge.svg?branch=fearture_challenge3_api)](https://coveralls.io/github/hariclerry/weconnect?branch=fearture_challenge3_api)
 # We Connect APP
 ### Introduction
 WeConnect Web App provides a platform that brings businesses and individuals together. 
