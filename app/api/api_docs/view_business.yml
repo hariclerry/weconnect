@@ -30,4 +30,4 @@ responses:
         "message":
           type: object
           enum:
-            - No business with such id found"
+            - "Business does not exist"

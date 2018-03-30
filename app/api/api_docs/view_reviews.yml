@@ -22,12 +22,4 @@ responses:
       properties:
         "reviews: ":
           type: array
-  404:
-    description: No reviews for this business
-    schema: 
-      type: object
-      properties:
-        "message: ":
-          type: string
-          enum:
-            - "No review added yet"
+ 

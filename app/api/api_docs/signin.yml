@@ -10,12 +10,12 @@ parameters:
     schema:
       type: object
       required:
-        - "username"
+        - "email"
         - "password"
       properties:
-        username:
+        email:
           type: "string"
-          example: "fiorella"
+          example: "fiorella@gmail.com"
         password:
           type: "string"
           format: password
@@ -30,8 +30,8 @@ responses:
         message:
           type: string
           enum:
-            - "login successful."
-        x-access_token:
+            - "You logged in successfully"
+        access_token:
           type: string      
   401:
     description: User crdentials wrong
@@ -41,7 +41,7 @@ responses:
         message:
           type: string
           enum:
-            - "wrong username or password"
+            - "Invalid email or password, Please try again"
            
  
 

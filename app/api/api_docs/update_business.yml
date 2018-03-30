@@ -23,7 +23,7 @@ responses:
         "message":
           type: object
           enum:
-          - "Business updated successfully"
+          - "Successfully updated business"
   404:
     description: No businesses found
     schema: 
@@ -32,7 +32,7 @@ responses:
         "Message":
           type: string
           enum:
-            - "No business with given id"
+            - "Business does not exist"
   499:
     description: A token error, invalid token or missing token
     schema: 

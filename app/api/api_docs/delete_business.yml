@@ -23,7 +23,7 @@ responses:
         "Message":
           type: object
           enum:
-            - "Successfully deleted"
+            - "Business deleted successfully"
   404:
     description: No business found
     schema: 
@@ -32,4 +32,4 @@ responses:
         "Message":
           type: string
           enum:
-            - "No business with given id"
+            - "Business does not exist"
