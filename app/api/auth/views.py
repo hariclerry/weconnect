@@ -81,14 +81,9 @@ def signup():
                         jsonify({
                             'message': "Password is too short"
                         })), 400
-    user = User.query.filter_by(email=email).first()
-    if user:
-                    response = {
-                        'message': 'email already exists,Please log in'
-                    }
-                    return make_response(jsonify(response)), 409
+
     # Query to see if the user already exists
-    user = User.query.filter_by(email = data['email']).first()
+    user = User.query.filter_by(email = email).first()
 
     if user:
         respond = {
@@ -146,16 +141,6 @@ def reset_password(current_user):
         new_password = data.get('new_password')
         user = User.query.filter_by(email = data['email']).first()
         if old_password and user.password_is_valid(old_password):
-            # if len(new_password.strip()) < 3:
-            #     return make_response(
-            #         jsonify({
-            #             'message': "password cannot be empty"
-            #         })), 400
-            # if len(new_password) < 8:
-            #     return make_response(
-            #         jsonify({
-            #             'message': "password is too short"
-            #         })), 40
 
             user.password = user.password_is_valid(data.get('new_password'))
             user.save()
@@ -164,7 +149,7 @@ def reset_password(current_user):
                         'message': 'password changed successfully'
                     })), 201
 
-        return make_response(jsonify({'message': 'wrong password'})), 403
+        return make_response(jsonify({'message': 'Wrong Password'})), 401
 
       
 
