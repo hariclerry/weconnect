@@ -37,28 +37,74 @@ def token_required(funct):
 @auth.route('/api/auth/register', methods=['POST'])
 @swag_from('../api_docs/signup.yml')
 def signup():
+    
+    """This Endpoint handles registration of  new users."""
+    
+    data = request.get_json()   
+    username = data['username'].strip()
+    email = data['email'].strip()
+    password = data['password'].strip()
 
-	"""This Endpoint handles registration of  new users."""
-
-	data = request.get_json()
+    if username and isinstance(username, int):
+                return make_response(
+                    jsonify({
+                        'message': "Username cannot be number"
+                    })), 400
+            
+    if username.strip() == "":
+                    return make_response(
+                        jsonify({
+                            'message': "Username cannot be empty"
+                        })), 400
+    if re.match(r'.*[\%\$\^\*\@\!\?\(\)\:\;\&\'\"\{\}\[\]].*', username):
+                    return make_response(
+                        jsonify({
+                            'message': "Username should not have special characters"
+                        })), 400
+    if email.strip() == "":
+                    return make_response(
+                        jsonify({
+                            'message': "Email cannot be empty"
+                        })), 400
+    if not re.match(r"([\w\.-]+)@([\w\.-]+)(\.[\w\.]+$)", email):
+                    return make_response(
+                        jsonify({
+                            'message': "Invalid Email input"
+                        })), 400
+    if password.strip() == "":
+                    return make_response(
+                        jsonify({
+                            'message': "Password cannot be empty"
+                        })), 400
+    if len(password) < 4 :
+                    return make_response(
+                        jsonify({
+                            'message': "Password is too short"
+                        })), 400
+    user = User.query.filter_by(email=email).first()
+    if user:
+                    response = {
+                        'message': 'email already exists,Please log in'
+                    }
+                    return make_response(jsonify(response)), 409
     # Query to see if the user already exists
-	user = User.query.filter_by( email = data['email']).first()
+    user = User.query.filter_by(email = data['email']).first()
 
-	if user:
-		respond = {
+    if user:
+        respond = {
                         'message': 'User already exists. Please login'
                     }
-		return make_response(jsonify(respond)), 409
+        return make_response(jsonify(respond)), 409
 
 	# if there is no user with such email address, register the new user
-	user = User(data['username'], data['email'], data['password'])
-	user.save()
-	respond = {
+    user = User(username=username, email=email, password=password)
+    user.save()
+    respond = {
 			"success": True,
 			"message": "Registration successful. Please login",
 			"Data" : data
 		     }
-	return jsonify(respond), 201
+    return jsonify(respond), 201
 
 @auth.route('/api/auth/login', methods=['POST'])
 @swag_from('../api_docs/signin.yml')
@@ -93,17 +139,32 @@ def signin():
 @token_required
 def reset_password(current_user):
 
-    data = request.get_json()
-    if not data['email'] or not data['old_password'] or not data['new_password']:
-        return make_response(("Fill all credentials"),401)
-    user = models.User.query.filter_by(email = data['email']).first()
-    if not user:
-        return make_response(("Wrong email"), 401)
-    else:
-        if user.password_is_valid(user.password):
-            user.password = data['new_password']
-            return make_response(("Successfully changed password"), 200)
-        return make_response(("Input correct old password"), 401)
+        data = request.get_json()
+
+        email = data.get('email')
+        old_password = data.get('old_password')
+        new_password = data.get('new_password')
+        user = User.query.filter_by(email = data['email']).first()
+        if old_password and user.password_is_valid(old_password):
+            # if len(new_password.strip()) < 3:
+            #     return make_response(
+            #         jsonify({
+            #             'message': "password cannot be empty"
+            #         })), 400
+            # if len(new_password) < 8:
+            #     return make_response(
+            #         jsonify({
+            #             'message': "password is too short"
+            #         })), 40
+
+            user.password = user.password_is_valid(data.get('new_password'))
+            user.save()
+            return make_response(
+                    jsonify({
+                        'message': 'password changed successfully'
+                    })), 201
+
+        return make_response(jsonify({'message': 'wrong password'})), 403
 
       
 

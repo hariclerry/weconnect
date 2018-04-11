@@ -33,10 +33,94 @@ def register_business(current_user):
     # sent data from postman is converted to a python dictionary
     data = request.get_json()
 
-    name = data['name']
-    category = data['category']
-    location = data['location']
-    description = data['description']
+    name = data['name'].strip()
+    category = data['category'].strip()
+    location = data['location'].strip()
+    description = data['description'].strip()
+
+    # validate json inputs
+    if name.strip() == "":
+                return make_response(
+                    jsonify({
+                        'message': "name cannot be empty"
+                    })), 400
+    if name.isdigit():
+                return make_response(
+                    jsonify({
+                        'message': "name cannot be integer"
+                    })), 400
+    if re.match(r'.*[\%\$\^\*\@\!\?\(\)\:\;\&\'\"\{\}\[\]].*',
+                        str(name)):
+                return make_response(
+                    jsonify({
+                        'message': "name should not have special characters"
+                    })), 400
+    if category and isinstance(category, int):
+                return make_response(
+                    jsonify({
+                        'message': "category cannot be number"
+                    })), 400
+    if category and category.isdigit():
+                return make_response(
+                    jsonify({
+                        'message': 'Category cannot be Integer'
+                    })), 400
+    if category.strip() == "":
+                return make_response(
+                    jsonify({
+                        'message': "category cannot be empty"
+                    })), 400
+    if re.match(r'.*[\%\$\^\*\@\!\?\(\)\:\;\&\'\"\{\}\[\]].*',
+                        str(category)):
+                return make_response(
+                    jsonify({
+                        'message':
+                        "category should not have special characters"
+                    })), 400
+    if location and isinstance(location, int):
+                return make_response(
+                    jsonify({
+                        'message': "location cannot be number"
+                    })), 400
+    if re.match(r'.*[\%\$\^\*\@\!\?\(\)\:\;\&\'\"\{\}\[\]].*',
+                        str(location)):
+                return make_response(
+                    jsonify({
+                        'message':
+                        "location should not have special characters"
+                    })), 400
+    if location.strip() == "":
+                return make_response(
+                    jsonify({
+                        'message': "location cannot be empty"
+                    })), 400
+    if location and location.isdigit():
+                return make_response(
+                    jsonify({
+                        'message': 'Location cannot be Integer'
+                    })), 400
+    if description and isinstance(description, int):
+                return make_response(
+                    jsonify({
+                        'message': "description cannot be number"
+                    })), 400
+    if re.match(r'.*[\%\$\^\*\@\!\?\(\)\:\;\&\'\"\{\}\[\]].*',
+                        str(description)):
+                return make_response(
+                    jsonify({
+                        'message':
+                        "description should not have special characters"
+                    })), 400
+    if description.strip() == "":
+                return make_response(
+                    jsonify({
+                        'message': "description cannot be empty"
+                    })), 400
+    if description and description.isdigit():
+                return make_response(
+                    jsonify({
+                        'message': 'Description cannot be Integer'
+                    })), 400
 
     # Check to see if business with that name exists before adding a new business
     business = Business.query.filter_by(name=name).first()
@@ -146,6 +230,32 @@ def addreview(current_user, id):
     """Endpoint for user to add review on a particular business"""
 
     data=request.get_json()
+
+    description = data['description'].strip()
+    # validate json inputs
+    if description and isinstance(description, int):
+                return make_response(
+                    jsonify({
+                        'message': "description cannot be number"
+                    })), 400
+    if re.match(r'.*[\%\$\^\*\@\!\?\(\)\:\;\&\'\"\{\}\[\]].*',
+                        str(description)):
+                return make_response(
+                    jsonify({
+                        'message':
+                        "description should not have special characters"
+                    })), 400
+    if description.strip() == "":
+                return make_response(
+                    jsonify({
+                        'message': "description cannot be empty"
+                    })), 400
+    if description and description.isdigit():
+                return make_response(
+                    jsonify({
+                        'message': 'Description cannot be Integer'
+                    })), 400
+
     business = Business.query.filter_by(id=id).first()
     if business:
         try:

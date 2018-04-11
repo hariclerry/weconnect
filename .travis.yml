@@ -12,7 +12,7 @@ services:
   - postgresql
 env:
   global:
-    - export SECRET="it_is_awesome"
+    - export SECRET="hard to guess string"
     - export APP_SETTINGS="development"
     - export DATABASE_URL="postgresql://postgres:clerry@localhost/weconnect"
 before_script:
