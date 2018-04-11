@@ -49,6 +49,8 @@ class AuthTestCase(unittest.TestCase):
             'new_password': 'hari55',
         }
 
+        
+
                             
 
         #bind the app context
@@ -56,6 +58,11 @@ class AuthTestCase(unittest.TestCase):
             self.client = self.app.test_client
             # create all tables
             db.create_all()
+
+        # login details
+        self.log = self.client().post('v1/api/auth/register',
+                               content_type = 'application/json',
+                               data = json.dumps(self.user_data))
 
     def tearDown(self):
         """teardown all initialized variables."""
@@ -66,10 +73,7 @@ class AuthTestCase(unittest.TestCase):
     
     def test_add_user(self):
         """Test that a new user can be added"""
-        response = self.client().post('v1/api/auth/register',
-                               content_type = 'application/json',
-                               data = json.dumps(dict(username = "barbara", email = 'me@gmail.com',
-                                                 password = 'red55')))
+        response = self.log
         
         self.assertIn(u'Registration successful. Please login', str(response.data))
         self.assertEqual(response.status_code, 201)
