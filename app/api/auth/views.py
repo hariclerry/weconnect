@@ -40,7 +40,55 @@ def signup():
     
     """This Endpoint handles registration of  new users."""
     
-    data = request.get_json() 
+    data = request.get_json()   
+    username = data['username'].strip()
+    email = data['email'].strip()
+    password = data['password'].strip()
+    
+    if username and  email and password:
+
+        if username and isinstance(username, int):
+                return make_response(
+                    jsonify({
+                        'message': "Username cannot be number"
+                    })), 400
+            
+        if username.strip() == "":
+                    return make_response(
+                        jsonify({
+                            'message': "Username cannot be empty"
+                        })), 400
+        if re.match(r'.*[\%\$\^\*\@\!\?\(\)\:\;\&\'\"\{\}\[\]].*', username):
+                    return make_response(
+                        jsonify({
+                            'message': "Username should not have special characters"
+                        })), 400
+        if email.strip() == "":
+                    return make_response(
+                        jsonify({
+                            'message': "Email cannot be empty"
+                        })), 400
+        if not re.match(r"([\w\.-]+)@([\w\.-]+)(\.[\w\.]+$)", email):
+                    return make_response(
+                        jsonify({
+                            'message': "Invalid Email input"
+                        })), 400
+        if password.strip() == "":
+                    return make_response(
+                        jsonify({
+                            'message': "Password cannot be empty"
+                        })), 400
+        if len(password) < 4 :
+                    return make_response(
+                        jsonify({
+                            'message': "Password is too short"
+                        })), 400
+    # user = User.query.filter_by(email=email).first()
+    # if user:
+    #                 response = {
+    #                     'message': 'User already exists. Please login'
+    #                 }
+    #                 return make_response(jsonify(response)), 409
     # Query to see if the user already exists
     user = User.query.filter_by(email = data['email']).first()
 
@@ -51,7 +99,7 @@ def signup():
         return make_response(jsonify(respond)), 409
 
 	# if there is no user with such email address, register the new user
-    user = User(data['username'],data['email'], data['password'])
+    user = User(username=username, email=email, password=password)
     user.save()
     respond = {
 			"success": True,
