@@ -148,29 +148,7 @@ class AuthTestCase(unittest.TestCase):
                                     headers =dict(access_token = result['access_token'])
                                     )
 
-        self.assertIn(u'Fill all credentials', str(response.data))
-        self.assertEqual(response.status_code, 401)
-
-    def test_wrong_password_reset(self):
-        """test that a user cannot reset password with wrong email"""
-        self.client().post('v1/api/auth/register',content_type='application/json',
-                                   data =json.dumps( dict(username = 'barbara', email='you@gmail.com',
-                                                        password='light')))
-        login = self.client().post('v1/api/auth/login',
-                                    content_type='application/json',
-                                   data=json.dumps(dict(email='you@gmail.com',
-                                                      password='light')))
-        result = json.loads(login.data.decode())
-        
-        response = self.client().post('v1/api/auth/reset_password',
-                                    content_type = 'application/json',
-                                    data = json.dumps(dict(email = 'you@gmail.com',
-                                                           old_password = 'light',
-                                                           new_password = 'lighter')),
-                                    headers =dict(access_token = result['access_token'])
-                                    )
-
-        self.assertIn(u'Input correct old password', str(response.data))
+        self.assertIn(u'Wrong Password', str(response.data))
         self.assertEqual(response.status_code, 401)
 
     def test_register_business(self):
