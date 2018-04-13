@@ -102,9 +102,9 @@ def signup():
     user = User(username=username, email=email, password=password)
     user.save()
     respond = {
-			"success": True,
-			"message": "Registration successful. Please login",
-			"Data" : data
+			"Success": True,
+			"Message": "Registration successful. Please login",
+			"User data" : data
 		     }
     return jsonify(respond), 201
 
@@ -144,10 +144,9 @@ def reset_password(current_user):
         data = request.get_json()
 
         email = data.get('email')
-        old_password = data.get('old_password')
         new_password = data.get('new_password')
         user = User.query.filter_by(email = data['email']).first()
-        if old_password and user.password_is_valid(old_password):
+        if user.password_is_valid(new_password):
 
             user.password = user.password_is_valid(data.get('new_password'))
             user.save()
