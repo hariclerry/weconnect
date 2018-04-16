@@ -83,12 +83,7 @@ def signup():
                         jsonify({
                             'message': "Password is too short"
                         })), 400
-    # user = User.query.filter_by(email=email).first()
-    # if user:
-    #                 response = {
-    #                     'message': 'User already exists. Please login'
-    #                 }
-    #                 return make_response(jsonify(response)), 409
+
     # Query to see if the user already exists
     user = User.query.filter_by(email = data['email']).first()
 
