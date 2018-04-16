@@ -4,7 +4,7 @@ import json
 from app.api import auth, main
 from app.api.auth import views as users
 from app.api.main import views as businesses
-from app.api.models import User
+# from app.api.models import User
 from app import create_app, db
 
 # session
@@ -75,7 +75,7 @@ class AuthTestCase(unittest.TestCase):
         
         self.result = json.loads(self.login.data.decode()) 
     def add_businesses(self):
-        """This a helper method that adds dummy businesses to the database"""
+        """This is a helper method that adds dummy businesses to the database"""
 
         response = self.client().post('v1/api/businesses',content_type='application/json',
                                    data = json.dumps( dict(name='Jumia',
@@ -163,10 +163,7 @@ class AuthTestCase(unittest.TestCase):
         """tests that a business can be created"""
         
         response = self.client().post('v1/api/businesses',content_type='application/json',
-                                   data = json.dumps( dict(name='Jumia',
-                                                          category = 'Property',
-                                                          location = 'Kiwatule',
-                                                          description= 'Dealers in property management')),
+                                   data = json.dumps(self.a_business),
                                     headers =dict(access_token = self.result['access_token']))
         self.assertIn(u'Business successfully registered', str(response.data))
         self.assertEqual(response.status_code, 201)
@@ -177,10 +174,10 @@ class AuthTestCase(unittest.TestCase):
      
         response = self.client().post('v1/api/businesses',content_type='application/json',
                                    data = json.dumps(self.a_business),
-                                    headers =dict(access_token = self.result['access_token']))
+                                   headers = dict(access_token = self.result['access_token']))
         response = self.client().post('v1/api/businesses', content_type='application/json',
                                    data = json.dumps(self.a_business),
-                                    headers =dict(access_token = self.result['access_token']))
+                                   headers = dict(access_token = self.result['access_token']))
         self.assertIn(u'Business already exists', str(response.data))
         self.assertEqual(response.status_code, 409)
     
@@ -188,120 +185,88 @@ class AuthTestCase(unittest.TestCase):
         """Tests if businesses can be viewed"""
         self.add_businesses()
         response = self.client().get('v1/api/businesses',
-                                  content_type='application/json',
-                                   headers=dict(access_token=self.result['access_token']))
+                                   content_type = 'application/json',
+                                   headers = dict(access_token=self.result['access_token']))
         self.assertIn(u'Jumia',str(response.data))
         self.assertEqual(response.status_code, 200)
         
 
     def test_view_business(self):
         """Test retrieve business by id"""
-        
+        self.add_businesses()
       
         response = self.client().get('v1/api/businesses/2',
-                                  content_type='application/json',
-                                   headers=dict(access_token= self.result['access_token']))
+                                   content_type = 'application/json',
+                                   headers = dict(access_token= self.result['access_token']))
         self.assertIn(u'Clerrys Boutique', str(response.data))
         self.assertEqual(response.status_code, 200)
     
     def test_fail_view_business(self):
         """Test fail to find a business with wrong id"""
 
-        self.client().post('v1/api/auth/register',
-                               content_type = 'application/json',
-                               data = json.dumps(dict(username = 'barbara', email = 'me@gmail.com',
-                                                      password = 'red55')))
-        login = self.client().post('v1/api/auth/login',
-                                    content_type = 'application/json',
-                                    data = json.dumps(dict(email = 'me@gmail.com',
-                                                           password = 'red55')))
-        
-        result = json.loads(login.data.decode())
-        response = self.client().post('v1/api/businesses',content_type='application/json',
-                                   data = json.dumps( dict(name='Jumia',
-                                                          category = 'Property',
-                                                          location = 'Kiwatule',
-                                                          description= 'Dealers in property management')),
-                                    headers =dict(access_token = result['access_token']))
-        response = self.client().post('v1/api/businesses',content_type='application/json',
-                                   data = json.dumps( dict(name='Clerrys Boutique',
-                                                          category = 'Fashion',
-                                                          location = 'Bugolobi',
-                                                          description= 'Dealers in latest fashion craze')),
-                                    headers =dict(access_token = result['access_token']))
+        self.add_businesses()
+
+        # response = self.client().post('v1/api/businesses',content_type='application/json',
+        #                            data = json.dumps(self.a_business),
+        #                             headers =dict(access_token = self.result['access_token']))
+        # response = self.client().post('v1/api/businesses',content_type='application/json',
+        #                            data = json.dumps(self.a_business),
+        #                             headers =dict(access_token = self.result['access_token']))
         response = self.client().get('v1/api/businesses/6',
-                                  content_type='application/json',
-                                   headers=dict(access_token=result['access_token']))
+                                   content_type = 'application/json',
+                                   headers = dict(access_token = self.result['access_token']))
         self.assertIn(u'Business does not exist', str(response.data))
         self.assertEqual(response.status_code, 401)
     
     def test_edit_business(self):
         """Test update business profile"""
 
-        self.client().post('v1/api/auth/register',
-                               content_type = 'application/json',
-                               data = json.dumps(dict(username = 'barbara', email = 'me@gmail.com',
-                                                      password = 'red55')))
-        login = self.client().post('v1/api/auth/login',
-                                    content_type = 'application/json',
-                                    data = json.dumps(dict(email = 'me@gmail.com',
-                                                           password = 'red55')))
-        
-        result = json.loads(login.data.decode())
-        response = self.client().post('v1/api/businesses',content_type='application/json',
-                                   data = json.dumps( dict(name='Jumia',
-                                                          category = 'Property',
-                                                          location = 'Kiwatule',
-                                                          description= 'Dealers in property management')),
-                                    headers =dict(access_token = result['access_token']))
-        response = self.client().post('v1/api/businesses',content_type='application/json',
-                                   data = json.dumps( dict(name='Clerrys Boutique',
-                                                          category = 'Fashion',
-                                                          location = 'Bugolobi',
-                                                          description= 'Dealers in latest fashion craze')),
-                                    headers =dict(access_token = result['access_token']))
+        self.add_businesses()
+        # response = self.client().post('v1/api/businesses',content_type='application/json',
+        #                            data = json.dumps( dict(name='Jumia',
+        #                                                   category = 'Property',
+        #                                                   location = 'Kiwatule',
+        #                                                   description= 'Dealers in property management')),
+        #                             headers =dict(access_token = result['access_token']))
+        # response = self.client().post('v1/api/businesses',content_type='application/json',
+        #                            data = json.dumps( dict(name='Clerrys Boutique',
+        #                                                   category = 'Fashion',
+        #                                                   location = 'Bugolobi',
+        #                                                   description= 'Dealers in latest fashion craze')),
+        #                             headers =dict(access_token = result['access_token']))
         response = self.client().put('v1/api/businesses/2',
-                                  content_type='application/json',
+                                  content_type = 'application/json',
                             data = json.dumps( dict(name='Clerrys Boutique',
                                                           category = 'Fashion and design',
                                                           location = 'Ntinda',
-                                                          description= 'Dealers in latest fashion craze')),
-                                   headers=dict(access_token=result['access_token']))
+                                                          description = 'Dealers in latest fashion craze')),
+                                   headers = dict(access_token = self.result['access_token']))
         self.assertEqual(response.status_code,  200)
         self.assertIn (u'Successfully updated business', str(response.data))
 
     def test_edit_business_fail(self):
         """Test if update business profile wrong id fails"""
 
-        self.client().post('v1/api/auth/register',
-                               content_type = 'application/json',
-                               data = json.dumps(dict(username = 'barbara', email = 'me@gmail.com',
-                                                      password = 'red55')))
-        login = self.client().post('v1/api/auth/login',
-                                    content_type = 'application/json',
-                                    data = json.dumps(dict(email = 'me@gmail.com',
-                                                           password = 'red55')))
-        
-        result = json.loads(login.data.decode())
-        response = self.client().post('v1/api/businesses',content_type='application/json',
-                                   data = json.dumps( dict(name='Jumia',
-                                                          category = 'Property',
-                                                          location = 'Kiwatule',
-                                                          description= 'Dealers in property management')),
-                                    headers =dict(access_token = result['access_token']))
-        response = self.client().post('v1/api/businesses',content_type='application/json',
-                                   data = json.dumps( dict(name='Clerrys Boutique',
-                                                          category = 'Fashion',
-                                                          location = 'Bugolobi',
-                                                          description= 'Dealers in latest fashion craze')),
-                                    headers =dict(access_token = result['access_token']))
+        self.add_businesses()
+        # response = self.client().post('v1/api/businesses',content_type='application/json',
+        #                            data = json.dumps( dict(name='Jumia',
+        #                                                   category = 'Property',
+        #                                                   location = 'Kiwatule',
+        #                                                   description= 'Dealers in property management')),
+        #                             headers =dict(access_token = result['access_token']))
+        # response = self.client().post('v1/api/businesses',content_type='application/json',
+        #                            data = json.dumps( dict(name='Clerrys Boutique',
+        #                                                   category = 'Fashion',
+        #                                                   location = 'Bugolobi',
+        #                                                   description= 'Dealers in latest fashion craze')),
+        #                             headers =dict(access_token = result['access_token']))
         response = self.client().put('v1/api/businesses/5',
                                   content_type='application/json',
-                            data = json.dumps( dict(name='Clerrys Boutique',
+                            data = json.dumps( dict(name = 'Clerrys Boutique',
                                                           category = 'Fashion and design',
                                                           location = 'Ntinda',
-                                                          description= 'Dealers in latest fashion craze')),
-                                   headers=dict(access_token=result['access_token']))
+                                                          description = 'Dealers in latest fashion craze')),
+                                   headers = dict(access_token = self.result['access_token']))
         self.assertEqual(response.status_code,  401)
         self.assertIn (u'Business does not exist', str(response.data))
 
@@ -309,31 +274,22 @@ class AuthTestCase(unittest.TestCase):
     def test_delete_business(self):
         """tests that a business can be deleted"""
 
-        self.client().post('v1/api/auth/register',
-                               content_type = 'application/json',
-                               data = json.dumps(dict(username = 'barbara', email = 'me@gmail.com',
-                                                      password = 'red55')))
-        login = self.client().post('v1/api/auth/login',
-                                    content_type = 'application/json',
-                                    data = json.dumps(dict(email = 'me@gmail.com',
-                                                           password = 'red55')))
-        
-        result = json.loads(login.data.decode())
-        response = self.client().post('v1/api/businesses',content_type='application/json',
-                                   data = json.dumps( dict(name='Jumia',
-                                                          category = 'Property',
-                                                          location = 'Kiwatule',
-                                                          description= 'Dealers in property management')),
-                                    headers =dict(access_token = result['access_token']))
-        response = self.client().post('v1/api/businesses',content_type='application/json',
-                                   data = json.dumps( dict(name='Clerrys Boutique',
-                                                          category = 'Fashion',
-                                                          location = 'Bugolobi',
-                                                          description= 'Dealers in latest fashion craze')),
-                                    headers =dict(access_token = result['access_token']))
+        self.add_businesses()
+        # response = self.client().post('v1/api/businesses',content_type='application/json',
+        #                            data = json.dumps( dict(name='Jumia',
+        #                                                   category = 'Property',
+        #                                                   location = 'Kiwatule',
+        #                                                   description= 'Dealers in property management')),
+        #                             headers =dict(access_token = result['access_token']))
+        # response = self.client().post('v1/api/businesses',content_type='application/json',
+        #                            data = json.dumps( dict(name='Clerrys Boutique',
+        #                                                   category = 'Fashion',
+        #                                                   location = 'Bugolobi',
+        #                                                   description= 'Dealers in latest fashion craze')),
+        #                             headers =dict(access_token = result['access_token']))
         response = self.client().delete('v1/api/businesses/2',
-                                  content_type='application/json',
-                                   headers=dict(access_token=result['access_token']))
+                                  content_type = 'application/json',
+                                   headers = dict(access_token = self.result['access_token']))
         self.assertEqual(response.status_code, 200)
         self.assertIn (u'Business deleted successfully', str(response.data))
 
@@ -341,145 +297,86 @@ class AuthTestCase(unittest.TestCase):
     def test_fail_delete_business(self):
         """tests that a non existent business cannot be deleted"""
 
-        self.client().post('v1/api/auth/register',
-                               content_type = 'application/json',
-                               data = json.dumps(dict(username = 'barbara', email = 'me@gmail.com',
-                                                      password = 'red55')))
-        login = self.client().post('v1/api/auth/login',
-                                    content_type = 'application/json',
-                                    data = json.dumps(dict(email = 'me@gmail.com',
-                                                           password = 'red55')))
-        
-        result = json.loads(login.data.decode())
-        response = self.client().post('v1/api/businesses',content_type='application/json',
-                                   data = json.dumps( dict(name='Jumia',
-                                                          category = 'Property',
-                                                          location = 'Kiwatule',
-                                                          description= 'Dealers in property management')),
-                                    headers =dict(access_token = result['access_token']))
-        response = self.client().post('v1/api/businesses',content_type='application/json',
-                                   data = json.dumps( dict(name='Clerrys Boutique',
-                                                          category = 'Fashion',
-                                                          location = 'Bugolobi',
-                                                          description= 'Dealers in latest fashion craze')),
-                                    headers =dict(access_token = result['access_token']))
+        self.add_businesses()
+        # response = self.client().post('v1/api/businesses',content_type='application/json',
+        #                            data = json.dumps( dict(name='Jumia',
+        #                                                   category = 'Property',
+        #                                                   location = 'Kiwatule',
+        #                                                   description= 'Dealers in property management')),
+        #                             headers =dict(access_token = result['access_token']))
+        # response = self.client().post('v1/api/businesses',content_type='application/json',
+        #                            data = json.dumps( dict(name='Clerrys Boutique',
+        #                                                   category = 'Fashion',
+        #                                                   location = 'Bugolobi',
+        #                                                   description= 'Dealers in latest fashion craze')),
+        #                             headers =dict(access_token = result['access_token']))
         response = self.client().delete('v1/api/businesses/6',
                                   content_type='application/json',
-                                   headers=dict(access_token=result['access_token']))
+                                   headers = dict(access_token = self.result['access_token']))
         self.assertEqual(response.status_code, 401)
         self.assertIn (u'Business does not exist', str(response.data))
 
     def test_add_review(self):
         """ensure reviews can be added for business"""
-        self.client().post('v1/api/auth/register',
-                               content_type = 'application/json',
-                               data = json.dumps(dict(username = 'barbara', email = 'me@gmail.com',
-                                                      password = 'red55')))
-        login = self.client().post('v1/api/auth/login',
-                                    content_type = 'application/json',
-                                    data = json.dumps(dict(email = 'me@gmail.com',
-                                                           password = 'red55')))
-        
-        result = json.loads(login.data.decode())
+    
         response = self.client().post('v1/api/businesses',content_type='application/json',
-                                   data = json.dumps( dict(name='Jumia',
-                                                          category = 'Property',
-                                                          location = 'Kiwatule',
-                                                          description= 'Dealers in property management')),
-                                    headers =dict(access_token = result['access_token']))
+                                   data = json.dumps(self.a_business),
+                                    headers = dict(access_token = self.result['access_token']))
         response = self.client().post('v1/api/business/1/reviews',
                                     content_type = 'application/json',
                                     data = json.dumps(dict(description = 'Great and Awesome service')),
-                                    headers = dict(access_token = result['access_token']))
+                                    headers = dict(access_token = self.result['access_token']))
         self.assertIn(u'Successfully Added Review', str(response.data))
         self.assertEqual(response.status_code, 201)
 
     def test_fail_add_review(self):
         """Ensure review cannot be added with error"""
 
-        self.client().post('v1/api/auth/register',
-                               content_type = 'application/json',
-                               data = json.dumps(dict(username = 'barbara', email = 'me@gmail.com',
-                                                      password = 'red55')))
-        login = self.client().post('v1/api/auth/login',
-                                    content_type = 'application/json',
-                                    data = json.dumps(dict(email = 'me@gmail.com',
-                                                           password = 'red55')))
-        
-        result = json.loads(login.data.decode())
         response = self.client().post('v1/api/businesses',content_type='application/json',
-                                   data = json.dumps( dict(name='Jumia',
-                                                          category = 'Property',
-                                                          location = 'Kiwatule',
-                                                          description= 'Dealers in property management')),
-                                    headers =dict(access_token = result['access_token']))
+                                   data = json.dumps(self.a_business),
+                                    headers = dict(access_token = self.result['access_token']))
         response = self.client().post('v1/api/business/5/reviews',
                                     content_type = 'application/json',
                                     data = json.dumps(dict(description = 'Great and Awesome service')),
-                                    headers = dict(access_token = result['access_token']))
+                                    headers = dict(access_token = self.result['access_token']))
         self.assertIn(u'Business does not exist', str(response.data))
         self.assertEqual(response.status_code,  401)
    
     def test_view_reviews(self):
         """ensure reviews can be viewed for business"""
 
-        self.client().post('v1/api/auth/register',
-                               content_type = 'application/json',
-                               data = json.dumps(dict(username = 'barbara', email = 'me@gmail.com',
-                                                      password = 'red55')))
-        login = self.client().post('v1/api/auth/login',
-                                    content_type = 'application/json',
-                                    data = json.dumps(dict(email = 'me@gmail.com',
-                                                           password = 'red55')))
-        
-        result = json.loads(login.data.decode())
         response = self.client().post('v1/api/businesses',content_type='application/json',
-                                   data = json.dumps( dict(name='Jumia',
-                                                          category = 'Property',
-                                                          location = 'Kiwatule',
-                                                          description= 'Dealers in property management')),
-                                    headers =dict(access_token = result['access_token']))
+                                   data = json.dumps(self.a_business),
+                                    headers =dict(access_token = self.result['access_token']))
         response = self.client().post('v1/api/business/1/reviews',
                                     content_type = 'application/json',
                                     data = json.dumps(dict(description = 'Great and Awesome service')),
-                                    headers = dict(access_token = result['access_token']))
-        response = self.client().post('v1/api/business/1/reviews',
-                                    content_type = 'application/json',
-                                    data = json.dumps(dict(description = 'The best in town')),
-                                    headers = dict(access_token = result['access_token']))
+                                    headers = dict(access_token = self.result['access_token']))
+        # response = self.client().post('v1/api/business/1/reviews',
+        #                             content_type = 'application/json',
+        #                             data = json.dumps(dict(description = 'The best in town')),
+        #                             headers = dict(access_token = result['access_token']))
         response = self.client().get('v1/api/business/1/reviews',
-                                    headers=dict(access_token=result['access_token']))
+                                    headers=dict(access_token = self.result['access_token']))
         self.assertIn(u'The best in town', str(response.data))
         self.assertEqual(response.status_code,  200)
 
     def test_fail_view_reviews(self):
         """ensure reviews cannot be viewed for non existent business"""
-        self.client().post('v1/api/auth/register',
-                               content_type = 'application/json',
-                               data = json.dumps(dict(username = 'barbara', email = 'me@gmail.com',
-                                                      password = 'red55')))
-        login = self.client().post('v1/api/auth/login',
-                                    content_type = 'application/json',
-                                    data = json.dumps(dict(email = 'me@gmail.com',
-                                                           password = 'red55')))
-        
-        result = json.loads(login.data.decode())
+       
         response = self.client().post('v1/api/businesses',content_type='application/json',
-                                   data = json.dumps( dict(name='Jumia',
-                                                          category = 'Property',
-                                                          location = 'Kiwatule',
-                                                          description= 'Dealers in property management')),
-                                    headers =dict(access_token = result['access_token']))
+                                    data = json.dumps(self.a_business),
+                                    headers = dict(access_token = self.result['access_token']))
         response = self.client().post('v1/api/business/1/reviews',
                                     content_type = 'application/json',
                                     data = json.dumps(dict(description = 'Great and Awesome service')),
-                                    headers = dict(access_token = result['access_token']))
-        response = self.client().post('v1/api/business/1/reviews',
-                                    content_type = 'application/json',
-                                    data = json.dumps(dict(description = 'The best in town')),
-                                    headers = dict(access_token = result['access_token']))
+                                    headers = dict(access_token = self.result['access_token']))
+        # response = self.client().post('v1/api/business/1/reviews',
+        #                             content_type = 'application/json',
+        #                             data = json.dumps(dict(description = 'The best in town')),
+        #                             headers = dict(access_token = result['access_token']))
         response = self.client().get('v1/api/business/5/reviews',
-                                    headers=dict(access_token=result['access_token']))
+                                    headers = dict(access_token = self.result['access_token']))
         self.assertIn(u'Business does not exist', str(response.data))
         self.assertEqual(response.status_code,   401)
  
