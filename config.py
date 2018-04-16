@@ -23,9 +23,6 @@ class DevelopmentConfig(Config):
     SQLALCHEMY_DATABASE_URI = 'postgresql://postgres:clerry@localhost/weconnect'
     SQLALCHEMY_ECHO = True
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    
-   
-
     DEBUG = True
     
 
