@@ -24,9 +24,9 @@ with We Connect APP you can:
 
 INSTRUCTIONS
 
-1.Pre-requisites
-2.Setup and intallations
-3.Authors
+1. Pre-requisites
+2. Setup and intallations
+3. Authors
 
 
 PRE-REQUISITES
@@ -37,7 +37,7 @@ For developers, you need to have installed the following
 
 2. GitSys
 
-3.[Postgresql](https://www.postgresql.org/download/)
+3. [Postgresql](https://www.postgresql.org/download/)
 
 Setup and Installation
 
