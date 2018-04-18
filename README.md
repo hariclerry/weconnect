@@ -62,6 +62,7 @@ RUNNING TESTS
 * Run the tests `nosetests -v`
 
 VERSIONS
+
 The API runs with one version, Version 1 
 
 Input `http:127.0.0.1:5000/` followed by any of the following endpoints to demo version 1.
@@ -73,12 +74,12 @@ Input `http:127.0.0.1:5000/` followed by any of the following endpoints to demo 
 |[POST/v1/api/auth/logout]|Logs out a user|
 |[POST/v1/api/auth/reset-password]|Password reset|
 |[POST/v1/api/businesses]|Register a business|
-|[PUT/v1/api/businesses/<id>]|Updates a business profile|
-|[DELETE/v1/api/businesses/<id>]|Remove a business|
+|[PUT/v1/api/businesses/<business_id>]|Updates a business profile|
+|[DELETE/v1/api/businesses/<business_id>]|Remove a business|
 |[GET/v1/api/businesses]|Retrieves all businesses|
-|[GET/v1/api/businesses/<id>]|Get a business|
-|[POST/v1/api/businesses/<id>/reviews]|Add a review for a business|
-|[GET/v1/api/businesses/<id>/reviews]|Get all reviews for a business|
+|[GET/v1/api/businesses/<business_id>]|Get a business|
+|[POST/v1/api/businesses/<business_id>/reviews]|Add a review for a business|
+|[GET/v1/api/businesses/<business_id>/reviews]|Get all reviews for a business|
 
 
 For more about using the API check 127.0.0.1:5000/apidocs or [`https://weconnect-harriet5.herokuapp.com/apidocs/`](https://weconnect-harriet5.herokuapp.com/apidocs/)
