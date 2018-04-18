@@ -11,7 +11,7 @@ click here to access WeConnect https://hariclerry.github.io pages
 
 FEATURES
 
-with We Connect APP you can:
+With WeConnect APP you can:
 * create an account
 * login into the account
 * register a business
