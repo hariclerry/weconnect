@@ -348,14 +348,14 @@ class AuthTestCase(unittest.TestCase):
         response = self.client().post('v1/api/businesses',content_type='application/json',
                                    data = json.dumps(self.a_business),
                                     headers =dict(access_token = self.result['access_token']))
-        response = self.client().post('v1/api/business/1/reviews',
-                                    content_type = 'application/json',
-                                    data = json.dumps(dict(description = 'Great and Awesome service')),
-                                    headers = dict(access_token = self.result['access_token']))
         # response = self.client().post('v1/api/business/1/reviews',
         #                             content_type = 'application/json',
-        #                             data = json.dumps(dict(description = 'The best in town')),
-        #                             headers = dict(access_token = result['access_token']))
+        #                             data = json.dumps(dict(description = 'Great and Awesome service')),
+        #                             headers = dict(access_token = self.result['access_token']))
+        response = self.client().post('v1/api/business/1/reviews',
+                                    content_type = 'application/json',
+                                    data = json.dumps(dict(description = 'The best in town')),
+                                    headers = dict(access_token = self.result['access_token']))
         response = self.client().get('v1/api/business/1/reviews',
                                     headers=dict(access_token = self.result['access_token']))
         self.assertIn(u'The best in town', str(response.data))
