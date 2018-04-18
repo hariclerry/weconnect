@@ -66,8 +66,7 @@ class AuthTestCase(unittest.TestCase):
         self.log = self.client().post('v1/api/auth/register',
                                content_type = 'application/json',
                                data = json.dumps(self.user_data))
-        # user = User("Harriet", "harriet@mail.com","1234")
-        # user.save()    
+        
         self.login = self.client().post('v1/api/auth/login',
                                     content_type = 'application/json',
                                     data = json.dumps(dict(email = 'me@gmail.com',
@@ -206,12 +205,7 @@ class AuthTestCase(unittest.TestCase):
 
         self.add_businesses()
 
-        # response = self.client().post('v1/api/businesses',content_type='application/json',
-        #                            data = json.dumps(self.a_business),
-        #                             headers =dict(access_token = self.result['access_token']))
-        # response = self.client().post('v1/api/businesses',content_type='application/json',
-        #                            data = json.dumps(self.a_business),
-        #                             headers =dict(access_token = self.result['access_token']))
+
         response = self.client().get('v1/api/businesses/6',
                                    content_type = 'application/json',
                                    headers = dict(access_token = self.result['access_token']))
@@ -222,18 +216,6 @@ class AuthTestCase(unittest.TestCase):
         """Test update business profile"""
 
         self.add_businesses()
-        # response = self.client().post('v1/api/businesses',content_type='application/json',
-        #                            data = json.dumps( dict(name='Jumia',
-        #                                                   category = 'Property',
-        #                                                   location = 'Kiwatule',
-        #                                                   description= 'Dealers in property management')),
-        #                             headers =dict(access_token = result['access_token']))
-        # response = self.client().post('v1/api/businesses',content_type='application/json',
-        #                            data = json.dumps( dict(name='Clerrys Boutique',
-        #                                                   category = 'Fashion',
-        #                                                   location = 'Bugolobi',
-        #                                                   description= 'Dealers in latest fashion craze')),
-        #                             headers =dict(access_token = result['access_token']))
         response = self.client().put('v1/api/businesses/2',
                                   content_type = 'application/json',
                             data = json.dumps( dict(name='Clerrys Boutique',
@@ -248,18 +230,7 @@ class AuthTestCase(unittest.TestCase):
         """Test if update business profile wrong id fails"""
 
         self.add_businesses()
-        # response = self.client().post('v1/api/businesses',content_type='application/json',
-        #                            data = json.dumps( dict(name='Jumia',
-        #                                                   category = 'Property',
-        #                                                   location = 'Kiwatule',
-        #                                                   description= 'Dealers in property management')),
-        #                             headers =dict(access_token = result['access_token']))
-        # response = self.client().post('v1/api/businesses',content_type='application/json',
-        #                            data = json.dumps( dict(name='Clerrys Boutique',
-        #                                                   category = 'Fashion',
-        #                                                   location = 'Bugolobi',
-        #                                                   description= 'Dealers in latest fashion craze')),
-        #                             headers =dict(access_token = result['access_token']))
+        
         response = self.client().put('v1/api/businesses/5',
                                   content_type='application/json',
                             data = json.dumps( dict(name = 'Clerrys Boutique',
@@ -275,18 +246,7 @@ class AuthTestCase(unittest.TestCase):
         """tests that a business can be deleted"""
 
         self.add_businesses()
-        # response = self.client().post('v1/api/businesses',content_type='application/json',
-        #                            data = json.dumps( dict(name='Jumia',
-        #                                                   category = 'Property',
-        #                                                   location = 'Kiwatule',
-        #                                                   description= 'Dealers in property management')),
-        #                             headers =dict(access_token = result['access_token']))
-        # response = self.client().post('v1/api/businesses',content_type='application/json',
-        #                            data = json.dumps( dict(name='Clerrys Boutique',
-        #                                                   category = 'Fashion',
-        #                                                   location = 'Bugolobi',
-        #                                                   description= 'Dealers in latest fashion craze')),
-        #                             headers =dict(access_token = result['access_token']))
+        
         response = self.client().delete('v1/api/businesses/2',
                                   content_type = 'application/json',
                                    headers = dict(access_token = self.result['access_token']))
@@ -298,18 +258,7 @@ class AuthTestCase(unittest.TestCase):
         """tests that a non existent business cannot be deleted"""
 
         self.add_businesses()
-        # response = self.client().post('v1/api/businesses',content_type='application/json',
-        #                            data = json.dumps( dict(name='Jumia',
-        #                                                   category = 'Property',
-        #                                                   location = 'Kiwatule',
-        #                                                   description= 'Dealers in property management')),
-        #                             headers =dict(access_token = result['access_token']))
-        # response = self.client().post('v1/api/businesses',content_type='application/json',
-        #                            data = json.dumps( dict(name='Clerrys Boutique',
-        #                                                   category = 'Fashion',
-        #                                                   location = 'Bugolobi',
-        #                                                   description= 'Dealers in latest fashion craze')),
-        #                             headers =dict(access_token = result['access_token']))
+        
         response = self.client().delete('v1/api/businesses/6',
                                   content_type='application/json',
                                    headers = dict(access_token = self.result['access_token']))
@@ -348,10 +297,7 @@ class AuthTestCase(unittest.TestCase):
         response = self.client().post('v1/api/businesses',content_type='application/json',
                                    data = json.dumps(self.a_business),
                                     headers =dict(access_token = self.result['access_token']))
-        # response = self.client().post('v1/api/business/1/reviews',
-        #                             content_type = 'application/json',
-        #                             data = json.dumps(dict(description = 'Great and Awesome service')),
-        #                             headers = dict(access_token = self.result['access_token']))
+
         response = self.client().post('v1/api/business/1/reviews',
                                     content_type = 'application/json',
                                     data = json.dumps(dict(description = 'The best in town')),
@@ -371,10 +317,7 @@ class AuthTestCase(unittest.TestCase):
                                     content_type = 'application/json',
                                     data = json.dumps(dict(description = 'Great and Awesome service')),
                                     headers = dict(access_token = self.result['access_token']))
-        # response = self.client().post('v1/api/business/1/reviews',
-        #                             content_type = 'application/json',
-        #                             data = json.dumps(dict(description = 'The best in town')),
-        #                             headers = dict(access_token = result['access_token']))
+        
         response = self.client().get('v1/api/business/5/reviews',
                                     headers = dict(access_token = self.result['access_token']))
         self.assertIn(u'Business does not exist', str(response.data))
