@@ -2,7 +2,7 @@
 [![Build Status](https://travis-ci.org/hariclerry/weconnect.svg?branch=fearture_challenge3_api)](https://travis-ci.org/hariclerry/weconnect)
 [![Coverage Status](https://coveralls.io/repos/github/hariclerry/weconnect/badge.svg?branch=fearture_challenge3_api)](https://coveralls.io/github/hariclerry/weconnect?branch=fearture_challenge3_api)
 # We Connect APP
-INTRODUCTION
+
 WeConnect Web App provides a platform that brings businesses and individuals together. 
 This platform creates awareness for businesses and gives the users the ability to register their businesses and write reviews about the businesses they have interacted with. It is built using Python and Flask micro framework.
 
