@@ -4,13 +4,12 @@ import json
 from app.api import auth, main
 from app.api.auth import views as users
 from app.api.main import views as businesses
-# from app.api.models import User
 from app import create_app, db
 
-# session
 
-class AuthTestCase(unittest.TestCase):
-    """Test case for the authentication blueprint."""
+
+class AllTestCase(unittest.TestCase):
+    """Test case for the authentication and blueprints."""
     def setUp(self):
         #create app using the flask import
         self.app = create_app('testing')
@@ -22,39 +21,30 @@ class AuthTestCase(unittest.TestCase):
                             'description': 'Dealers in property management'
                             }
         
-        #create a dict to be used to add a new biz with values as numbers
-        self.a_business_with_some_values_as_numbers = {'name':123,
-                            'category': 'IT',
-                            'location' : 908
-                            }
 
         #create a dict to be used to edit business
         self.edited_business = {'name':'Jumia Ltd',
                                 'category': 'Property',
                                 'location' : 'Entebbe',
                                 'description': 'Dealers in property management'
-                            }
+                               }
 
         #create a dict to be used to store the review
         self.a_business_review = {'description': 'Great and Awesome service'
                         
-                            }
+                                 }
         #create a dict to be used to store user details
         self.user_data = {
             'username': 'barbara',
             'email': 'me@gmail.com',
             'password': 'red55'
-        }
+            }
 
         #password reset details
-        self.password_infor = {
+        self.password_info = {
             'previous_password': 'red55',
             'new_password': 'hari55',
-        }
-
-        
-
-                            
+            }
 
         #bind the app context
         with self.app.app_context():
@@ -77,17 +67,17 @@ class AuthTestCase(unittest.TestCase):
         """This is a helper method that adds dummy businesses to the database"""
 
         response = self.client().post('v1/api/businesses',content_type='application/json',
-                                   data = json.dumps( dict(name='Jumia',
+                                   data = json.dumps(dict(name = 'Jumia',
                                                           category = 'Property',
                                                           location = 'Kiwatule',
-                                                          description= 'Dealers in property management')),
-                                    headers =dict(access_token = self.result['access_token']))
+                                                          description = 'Dealers in property management')),
+                                    headers = dict(access_token = self.result['access_token']))
         response = self.client().post('v1/api/businesses',content_type='application/json',
-                                   data = json.dumps( dict(name='Clerrys Boutique',
+                                   data = json.dumps(dict(name = 'Clerrys Boutique',
                                                           category = 'Fashion',
                                                           location = 'Bugolobi',
-                                                          description= 'Dealers in latest fashion craze')),
-                                    headers =dict(access_token = self.result['access_token']))
+                                                          description = 'Dealers in latest fashion craze')),
+                                    headers = dict(access_token = self.result['access_token']))
 
 
     def tearDown(self):
@@ -100,7 +90,6 @@ class AuthTestCase(unittest.TestCase):
     def test_add_user(self):
         """Test that a new user can be added"""
   
-        
         self.assertIn(u'Registration successful. Please login', str(self.log.data))
         self.assertEqual(self.log.status_code, 201)
 
@@ -109,7 +98,7 @@ class AuthTestCase(unittest.TestCase):
         
         response = self.client().post('v1/api/auth/register',
                                content_type = 'application/json',
-                               data = json.dumps(dict(username= "barbara", email = 'me@gmail.com',
+                               data = json.dumps(dict(username = "barbara", email = 'me@gmail.com',
                                                  password = 'red55')))
         
         self.assertIn('User already exists. Please login', str(response.data))
@@ -117,7 +106,6 @@ class AuthTestCase(unittest.TestCase):
 
     def test_login_with_credentials(self):
         """test that a user can sign in with correct credentials"""
-      
 
         self.assertIn(u'You logged in successfully.', str(self.login.data))
         self.assertEqual(self.login.status_code, 200)
@@ -136,9 +124,9 @@ class AuthTestCase(unittest.TestCase):
         """tests user token generated on login"""
   
         login = self.client().post('v1/api/auth/login',
-                                    content_type='application/json',
-                                   data=json.dumps(dict(email='me@gmail.com',
-                                                      password='red55')))
+                                    content_type = 'application/json',
+                                    data=json.dumps(dict(email = 'me@gmail.com',
+                                                        password = 'red55')))
         result = json.loads(login.data.decode())
         self.assertTrue(result['access_token'])
         self.assertEqual(login.status_code, 200)
@@ -146,13 +134,12 @@ class AuthTestCase(unittest.TestCase):
     def test_failed_password_reset(self):
         """test that a user cannot reset password with missing credentials"""
        
-        
         response = self.client().post('v1/api/auth/reset_password',
                                     content_type = 'application/json',
                                     data = json.dumps(dict(email = 'me@gmail.com',
                                                            old_password = 'red5555',
                                                            new_password = 'lighter')),
-                                    headers =dict(access_token = self.result['access_token'])
+                                    headers = dict(access_token = self.result['access_token'])
                                     )
 
         self.assertIn(u'Wrong Password', str(response.data))
@@ -161,9 +148,9 @@ class AuthTestCase(unittest.TestCase):
     def test_register_business(self):
         """tests that a business can be created"""
         
-        response = self.client().post('v1/api/businesses',content_type='application/json',
-                                   data = json.dumps(self.a_business),
-                                    headers =dict(access_token = self.result['access_token']))
+        response = self.client().post('v1/api/businesses',content_type = 'application/json',
+                                     data = json.dumps(self.a_business),
+                                     headers = dict(access_token = self.result['access_token']))
         self.assertIn(u'Business successfully registered', str(response.data))
         self.assertEqual(response.status_code, 201)
 
@@ -171,7 +158,7 @@ class AuthTestCase(unittest.TestCase):
         """tests that a business cannot be created if it exists"""
 
      
-        response = self.client().post('v1/api/businesses',content_type='application/json',
+        response = self.client().post('v1/api/businesses',content_type = 'application/json',
                                    data = json.dumps(self.a_business),
                                    headers = dict(access_token = self.result['access_token']))
         response = self.client().post('v1/api/businesses', content_type='application/json',
@@ -185,7 +172,7 @@ class AuthTestCase(unittest.TestCase):
         self.add_businesses()
         response = self.client().get('v1/api/businesses',
                                    content_type = 'application/json',
-                                   headers = dict(access_token=self.result['access_token']))
+                                   headers = dict(access_token = self.result['access_token']))
         self.assertIn(u'Jumia',str(response.data))
         self.assertEqual(response.status_code, 200)
         
@@ -196,7 +183,7 @@ class AuthTestCase(unittest.TestCase):
       
         response = self.client().get('v1/api/businesses/2',
                                    content_type = 'application/json',
-                                   headers = dict(access_token= self.result['access_token']))
+                                   headers = dict(access_token = self.result['access_token']))
         self.assertIn(u'Clerrys Boutique', str(response.data))
         self.assertEqual(response.status_code, 200)
     
@@ -217,12 +204,12 @@ class AuthTestCase(unittest.TestCase):
 
         self.add_businesses()
         response = self.client().put('v1/api/businesses/2',
-                                  content_type = 'application/json',
-                            data = json.dumps( dict(name='Clerrys Boutique',
+                                    content_type = 'application/json',
+                                    data = json.dumps( dict(name = 'Clerrys Boutique',
                                                           category = 'Fashion and design',
                                                           location = 'Ntinda',
                                                           description = 'Dealers in latest fashion craze')),
-                                   headers = dict(access_token = self.result['access_token']))
+                                    headers = dict(access_token = self.result['access_token']))
         self.assertEqual(response.status_code,  200)
         self.assertIn (u'Successfully updated business', str(response.data))
 
@@ -232,12 +219,12 @@ class AuthTestCase(unittest.TestCase):
         self.add_businesses()
         
         response = self.client().put('v1/api/businesses/5',
-                                  content_type='application/json',
-                            data = json.dumps( dict(name = 'Clerrys Boutique',
-                                                          category = 'Fashion and design',
-                                                          location = 'Ntinda',
-                                                          description = 'Dealers in latest fashion craze')),
-                                   headers = dict(access_token = self.result['access_token']))
+                                    content_type = 'application/json',
+                                    data = json.dumps( dict(name = 'Clerrys Boutique',
+                                                            category = 'Fashion and design',
+                                                            location = 'Ntinda',
+                                                            description = 'Dealers in latest fashion craze')),
+                                    headers = dict(access_token = self.result['access_token']))
         self.assertEqual(response.status_code,  401)
         self.assertIn (u'Business does not exist', str(response.data))
 
@@ -248,7 +235,7 @@ class AuthTestCase(unittest.TestCase):
         self.add_businesses()
         
         response = self.client().delete('v1/api/businesses/2',
-                                  content_type = 'application/json',
+                                   content_type = 'application/json',
                                    headers = dict(access_token = self.result['access_token']))
         self.assertEqual(response.status_code, 200)
         self.assertIn (u'Business deleted successfully', str(response.data))
@@ -260,7 +247,7 @@ class AuthTestCase(unittest.TestCase):
         self.add_businesses()
         
         response = self.client().delete('v1/api/businesses/6',
-                                  content_type='application/json',
+                                   content_type = 'application/json',
                                    headers = dict(access_token = self.result['access_token']))
         self.assertEqual(response.status_code, 401)
         self.assertIn (u'Business does not exist', str(response.data))
@@ -268,8 +255,8 @@ class AuthTestCase(unittest.TestCase):
     def test_add_review(self):
         """ensure reviews can be added for business"""
     
-        response = self.client().post('v1/api/businesses',content_type='application/json',
-                                   data = json.dumps(self.a_business),
+        response = self.client().post('v1/api/businesses',content_type = 'application/json',
+                                    data = json.dumps(self.a_business),
                                     headers = dict(access_token = self.result['access_token']))
         response = self.client().post('v1/api/business/1/reviews',
                                     content_type = 'application/json',
@@ -281,7 +268,7 @@ class AuthTestCase(unittest.TestCase):
     def test_fail_add_review(self):
         """Ensure review cannot be added with error"""
 
-        response = self.client().post('v1/api/businesses',content_type='application/json',
+        response = self.client().post('v1/api/businesses',content_type = 'application/json',
                                    data = json.dumps(self.a_business),
                                     headers = dict(access_token = self.result['access_token']))
         response = self.client().post('v1/api/business/5/reviews',
@@ -294,16 +281,16 @@ class AuthTestCase(unittest.TestCase):
     def test_view_reviews(self):
         """ensure reviews can be viewed for business"""
 
-        response = self.client().post('v1/api/businesses',content_type='application/json',
-                                   data = json.dumps(self.a_business),
-                                    headers =dict(access_token = self.result['access_token']))
+        response = self.client().post('v1/api/businesses',content_type = 'application/json',
+                                    data = json.dumps(self.a_business),
+                                    headers = dict(access_token = self.result['access_token']))
 
         response = self.client().post('v1/api/business/1/reviews',
                                     content_type = 'application/json',
                                     data = json.dumps(dict(description = 'The best in town')),
                                     headers = dict(access_token = self.result['access_token']))
         response = self.client().get('v1/api/business/1/reviews',
-                                    headers=dict(access_token = self.result['access_token']))
+                                    headers = dict(access_token = self.result['access_token']))
         self.assertIn(u'The best in town', str(response.data))
         self.assertEqual(response.status_code,  200)
 
