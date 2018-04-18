@@ -38,50 +38,50 @@ def token_required(funct):
 @swag_from('../api_docs/signup.yml')
 def signup():
     
-    """This Endpoint handles registration of  new users."""
+    """This Endpoint handles registration of new users."""
     
     data = request.get_json()   
     username = data['username'].strip()
     email = data['email'].strip()
     password = data['password'].strip()
     
-    if username and  email and password:
+    if username and email and password:
 
         if username and isinstance(username, int):
                 return make_response(
                     jsonify({
-                        'message': "Username cannot be number"
+                        'Message': "Username cannot be number"
                     })), 400
             
         if username.strip() == "":
                     return make_response(
                         jsonify({
-                            'message': "Username cannot be empty"
+                            'Message': "Username cannot be empty"
                         })), 400
         if re.match(r'.*[\%\$\^\*\@\!\?\(\)\:\;\&\'\"\{\}\[\]].*', username):
                     return make_response(
                         jsonify({
-                            'message': "Username should not have special characters"
+                            'Message': "Username should not have special characters"
                         })), 400
         if email.strip() == "":
                     return make_response(
                         jsonify({
-                            'message': "Email cannot be empty"
+                            'Message': "Email cannot be empty"
                         })), 400
         if not re.match(r"([\w\.-]+)@([\w\.-]+)(\.[\w\.]+$)", email):
                     return make_response(
                         jsonify({
-                            'message': "Invalid Email input"
+                            'Message': "Invalid Email input"
                         })), 400
         if password.strip() == "":
                     return make_response(
                         jsonify({
-                            'message': "Password cannot be empty"
+                            'Message': "Password cannot be empty"
                         })), 400
         if len(password) < 4 :
                     return make_response(
                         jsonify({
-                            'message': "Password is too short"
+                            'Message': "Password is too short"
                         })), 400
 
     # Query to see if the user already exists
@@ -89,7 +89,7 @@ def signup():
 
     if user:
         respond = {
-                        'message': 'User already exists. Please login'
+                        'Message': 'User already exists. Please login'
                     }
         return make_response(jsonify(respond)), 409
 
@@ -119,15 +119,15 @@ def signin():
 		access_token = user.generate_token(user.id)
 		if access_token:
 				respond = {
-                        'message': 'You logged in successfully.',
-                        'access_token': access_token.decode()
+                        'Message': 'You logged in successfully.',
+                        'Access_token': access_token.decode()
                     }
 				return make_response(jsonify(respond)), 200
 		
 	# User does not exist. Therefore, return an error message
 	else:
 		respond = {
-                    'message': 'Invalid email or password, Please try again'
+                    'Message': 'Invalid email or password, Please try again'
                 }
 		return make_response(jsonify(respond)), 401
 
@@ -138,16 +138,15 @@ def reset_password(current_user):
 
         data = request.get_json()
 
-        email = data.get('email')
         new_password = data.get('new_password')
         user = User.query.filter_by(email = data['email']).first()
-        if user.password_is_valid(new_password):
+        if user:
 
-            user.password = user.password_is_valid(data.get('new_password'))
+            user.password = user.password_is_valid(new_password)
             user.save()
             return make_response(
                     jsonify({
-                        'message': 'password changed successfully'
+                        'Message': 'password changed successfully'
                     })), 201
 
         return make_response(jsonify({'message': 'Wrong Password'})), 401
