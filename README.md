@@ -91,4 +91,4 @@ How to run API on windows
 
 Credits
 
-[1]: https://github.com/hariclerry
+[Harriet]: https://github.com/hariclerry
