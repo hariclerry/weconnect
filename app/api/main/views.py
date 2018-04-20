@@ -1,6 +1,6 @@
 # """This module defines the application endpoints"""
 
-from flask import request, jsonify, url_for, session, make_response, abort
+from flask import request, jsonify, url_for, session, make_response, abort, redirect
 from flasgger import swag_from
 from functools import wraps
 import jwt
@@ -18,18 +18,14 @@ BUSINESSES_PER_PAGE = 3
 
 
 @main.route('/', methods=['GET'])
-
 def index():
-	return jsonify({"message":"Welcome to WeConnect"})
-
+	return redirect(str(url_for('main.index',_external=True))+ 'apidocs')
 
 @main.route('/api/businesses',  methods=[ 'POST'])
 @token_required
 @swag_from('../api_docs/register_business.yml')
 def register_business(current_user):
-
     """Endpoint for handling business registration """
-    
     # sent data from postman is converted to a python dictionary
     data = request.get_json()
 
