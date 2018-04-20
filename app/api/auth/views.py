@@ -140,15 +140,18 @@ def reset_password(current_user):
 
         new_password = data.get('new_password')
         user = User.query.filter_by(email = data['email']).first()
-        if user:
-
-            user.password = user.password_is_valid(new_password)
+        if not user.password_is_valid(new_password):
+            user.reset_password(new_password)
             user.save()
             return make_response(
                     jsonify({
                         'Message': 'password changed successfully'
                     })), 201
-
+        else:
+            return make_response(
+                    jsonify({
+                        'Message': 'password never changed'
+                    })), 400
         return make_response(jsonify({'message': 'Wrong Password'})), 401
 
       
