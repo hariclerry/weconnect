@@ -120,7 +120,7 @@ def signin():
 		if access_token:
 				respond = {
                         'Message': 'You logged in successfully.',
-                        'Access_token': access_token.decode()
+                        'access_token': access_token.decode()
                     }
 				return make_response(jsonify(respond)), 200
 		
@@ -145,7 +145,7 @@ def reset_password(current_user):
             user.save()
             return make_response(
                     jsonify({
-                        'Message': 'password changed successfully'
+                        'Message': 'Password changed successfully'
                     })), 201
         else:
             return make_response(
