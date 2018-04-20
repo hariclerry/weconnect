@@ -11,7 +11,7 @@ from app import db
 class User(db.Model):
 
     """This class represents the users table."""
-    
+
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(60), nullable=False)
@@ -29,6 +29,10 @@ class User(db.Model):
         Checks the password against it's hash to validates the user's password
         """
         return Bcrypt().check_password_hash(self.password, password)
+
+    def reset_password(self, new_password):
+        self.password = Bcrypt().generate_password_hash(new_password).decode()
+        return True
 
     def save(self):
         """Save a user to the database.
@@ -82,12 +86,12 @@ class Business(db.Model):
     __tablename__ = 'businesses'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(60), nullable=False, unique=True)
-    category = db.Column(db.String(60),  nullable=False)
-    location = db.Column(db.String(60),  nullable=False)
+    category = db.Column(db.String(60), nullable=False)
+    location = db.Column(db.String(60), nullable=False)
     description = db.Column(db.String(60), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     reviews = db.relationship('Review', backref='businesses', order_by='Review.id', cascade="all, delete-orphan")
-    
+
     def __init__(self, name, category, location, description, user_id):
         self.name = name
         self.category = category
