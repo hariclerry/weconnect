@@ -20,7 +20,7 @@ BUSINESSES_PER_PAGE = 3
 @main.route('/', methods=['GET'])
 
 def index():
-	return jsonify({"message":"Welcome to WeConnect"})
+	return jsonify({"Message":"Welcome to WeConnect"})
 
 
 @main.route('/api/businesses',  methods=[ 'POST'])

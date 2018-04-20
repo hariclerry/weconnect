@@ -98,8 +98,7 @@ def signup():
     user.save()
     respond = {
 			"Success": True,
-			"Message": "Registration successful. Please login",
-			"User data" : data
+			"Message": "Registration successful. Please login"
 		     }
     return jsonify(respond), 201
 
