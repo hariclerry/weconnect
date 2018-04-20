@@ -128,22 +128,22 @@ class AllTestCase(unittest.TestCase):
                                     data=json.dumps(dict(email = 'me@gmail.com',
                                                         password = 'red55')))
         result = json.loads(login.data.decode())
+        
         self.assertTrue(result['access_token'])
         self.assertEqual(login.status_code, 200)
 
-    def test_failed_password_reset(self):
-        """test that a user cannot reset password with missing credentials"""
+    def test_success_password_reset(self):
+        """test that a user can reset password with correct credentials"""
        
         response = self.client().post('v1/api/auth/reset_password',
                                     content_type = 'application/json',
                                     data = json.dumps(dict(email = 'me@gmail.com',
-                                                           old_password = 'red5555',
                                                            new_password = 'lighter')),
                                     headers = dict(access_token = self.result['access_token'])
                                     )
 
-        self.assertIn(u'Wrong Password', str(response.data))
-        self.assertEqual(response.status_code, 401)
+        self.assertIn(u'Password changed successfully', str(response.data))
+        self.assertEqual(response.status_code, 201)
 
     def test_register_business(self):
         """tests that a business can be created"""
