@@ -9,7 +9,7 @@ from app import create_app, db
 
 
 class AllTestCase(unittest.TestCase):
-    """Test case for the authentication and blueprints."""
+    """Test case for the authentication and  blueprints."""
     def setUp(self):
         #create app using the flask import
         self.app = create_app('testing')
