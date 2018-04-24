@@ -1,5 +1,6 @@
 import os
 
+
 class Config(object):
     """
     Common configurations
@@ -8,6 +9,8 @@ class Config(object):
 
     SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL')
     # Put any configurations here that are common across all environments
+
+
 class TestingConfig(Config):
     """Configurations for Testing, with a separate test database."""
     SQLALCHEMY_DATABASE_URI = 'postgresql://postgres:clerry@localhost/weconnect'
@@ -15,6 +18,7 @@ class TestingConfig(Config):
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     TESTING = True
     DEBUG = True
+
 
 class DevelopmentConfig(Config):
     """
@@ -24,7 +28,7 @@ class DevelopmentConfig(Config):
     SQLALCHEMY_ECHO = True
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     DEBUG = True
-    
+
 
 class ProductionConfig(Config):
     """
@@ -35,6 +39,7 @@ class ProductionConfig(Config):
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     DEBUG = False
+
 
 app_config = {
     'development': DevelopmentConfig,
