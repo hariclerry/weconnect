@@ -3,7 +3,7 @@ Endpoint to update business information using an id value
 tags:
   - Business
 parameters:
-  - name: Authorization
+  - name: access_token
     description: A json web token to be used for each request
     type: string
     in: header
