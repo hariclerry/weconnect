@@ -20,6 +20,6 @@ class BusinessService(object):
         if category is not None:
             filters["category"] = category
         res = Business.get_businesses(page, limit, search_string, filters)
-        if res["success"]:
+        if res["status"]:
             return jsonify(res), 200
         return jsonify(res), 404
