@@ -19,7 +19,7 @@ BUSINESSES_PER_PAGE = 3
 
 @main.route('/', methods=['GET'])
 def index():
-    return jsonify({"message": "Welcome to WeConnect"})
+    return jsonify({'message': "Welcome to WeConnect"})
 
 
 @main.route('/api/businesses',  methods=['POST'])
@@ -61,7 +61,7 @@ def register_business(current_user):
     if category and category.isdigit():
         return make_response(
             jsonify({
-                'message': 'Category cannot be Integer'
+                'message': "Category cannot be Integer"
             })), 400
     if category.strip() == "":
         return make_response(
@@ -84,7 +84,7 @@ def register_business(current_user):
         return make_response(
             jsonify({
                 'message':
-                "Location should not have special characters"
+                "Location cannot have special characters"
             })), 400
     if location.strip() == "":
         return make_response(
@@ -106,7 +106,7 @@ def register_business(current_user):
         return make_response(
             jsonify({
                 'message':
-                "Description should not have special characters"
+                "Description cannot have special characters"
             })), 400
     if description.strip() == "":
         return make_response(
@@ -124,7 +124,8 @@ def register_business(current_user):
 
     if business:
         response = {
-            'message': 'Business already exists'
+            'message': 'Business already exists',
+            'status': "Success"
         }
         return make_response(jsonify(response)), 409
     # adding a new business
@@ -135,13 +136,14 @@ def register_business(current_user):
                         user_id=current_user.id)
     business.save()
     response = {
-        'Id': business.id,
-        'Name': business.name,
-        'Category': business.category,
-        'Location': business.location,
-        'Description': business.description,
-        'User_id': current_user.id,
-        'message': "Business successfully registered"
+            'Business_data': {'Id': business.id,
+            'Name': business.name,
+            'Category': business.category,
+            'Location': business.location,
+            'Description': business.description,
+            'User_id': current_user.id},
+            'message': "Business successfully registered",
+            'status': "Succes"
     }
     return jsonify(response), 201
 
@@ -177,8 +179,9 @@ def single_businesses(current_user, id):
         output['category'] = business.category
         output['location'] = business.location
         output['description'] = business.description
-        return jsonify({"Business Data": output}),  200
-    return make_response(("Business does not exist"), 401)
+        return jsonify({'Business Data': output}),  200
+    return make_response(jsonify({'message': "Business does not exist",
+                                  'status': "Failed"})), 401
 
 
 @main.route('/api/businesses/<id>', methods=['PUT'])
@@ -188,19 +191,110 @@ def update_business(current_user, id):
     """Endpoint for handling business updates"""
 
     data = request.get_json()
+
+    name = data['name'].strip()
+    category = data['category'].strip()
+    location = data['location'].strip()
+    description = data['description'].strip()
+
+    # validate json inputs
+    if name.strip() == "":
+        return make_response(
+            jsonify({
+                'message': "Name cannot be empty"
+            })), 400
+    if name.isdigit():
+        return make_response(
+            jsonify({
+                'message': "Name cannot be integer"
+            })), 400
+    if re.match(r'.*[\%\$\^\*\@\!\?\(\)\:\;\&\'\"\{\}\[\]].*',
+                str(name)):
+        return make_response(
+            jsonify({
+                'message': "Name should not have special characters"
+            })), 400
+    if category and isinstance(category, int):
+        return make_response(
+            jsonify({
+                'message': "Category cannot be number"
+            })), 400
+    if category and category.isdigit():
+        return make_response(
+            jsonify({
+                'message': "Category cannot be Integer"
+            })), 400
+    if category.strip() == "":
+        return make_response(
+            jsonify({
+                'message': "Category cannot be empty"
+            })), 400
+    if re.match(r'.*[\%\$\^\*\@\!\?\(\)\:\;\&\'\"\{\}\[\]].*',
+                str(category)):
+        return make_response(
+            jsonify({
+                'message': "Category should not have special characters"
+            })), 400
+    if location and isinstance(location, int):
+        return make_response(
+            jsonify({
+                'message': "Location cannot be number"
+            })), 400
+    if re.match(r'.*[\%\$\^\*\@\!\?\(\)\:\;\&\'\"\{\}\[\]].*',
+                str(location)):
+        return make_response(
+            jsonify({
+                'message':
+                "Location cannot have special characters"
+            })), 400
+    if location.strip() == "":
+        return make_response(
+            jsonify({
+                'message': "Location cannot be empty"
+            })), 400
+    if location and location.isdigit():
+        return make_response(
+            jsonify({
+                'message': 'Location cannot be Integer'
+            })), 400
+    if description and isinstance(description, int):
+        return make_response(
+            jsonify({
+                'message': "Description cannot be number"
+            })), 400
+    if re.match(r'.*[\%\$\^\*\@\!\?\(\)\:\;\&\'\"\{\}\[\]].*',
+                str(description)):
+        return make_response(
+            jsonify({
+                'message':
+                "Description cannot have special characters"
+            })), 400
+    if description.strip() == "":
+        return make_response(
+            jsonify({
+                'message': "Description cannot be empty"
+            })), 400
+    if description and description.isdigit():
+        return make_response(
+            jsonify({
+                'message': 'Description cannot be Integer'
+            })), 400
+
+    
     business = Business.query.filter_by(id=id).first()
     if business:
-        business.name = data['name'].strip()
+        business.name = data['name']
         business.category = data['category']
         business.location = data['location']
         business.description = data['description']
 
         business.save()
 
-        return jsonify({"Mesage": "Successfully updated business",
-                        "Business Data": data
-                        })
-    return make_response(("Business does not exist"), 401)
+        return jsonify({'mesage': "Successfully updated business",
+                        'business_data': data,
+                        'status': "Succes"}), 201
+    return make_response(jsonify({'message': "Business does not exist",
+                                  'status': "Failed" })), 401
 
 
 @main.route('/api/businesses/<id>', methods=['DELETE'])
@@ -213,9 +307,11 @@ def delete_businesses(current_user, id):
     if business:
         business.delete()
         return jsonify({
-            "message": "Business deleted successfully"
+            "message": "Business deleted successfully",
+            'status': "Success"
         }), 200
-    return make_response(("Business does not exist"), 401)
+    return make_response(jsonify({'message': "Business does not exist",
+                                  'status': "Failed"})), 401
 
 
 @main.route('/api/business/<id>/reviews', methods=['POST'])
@@ -256,13 +352,15 @@ def addreview(current_user, id):
             review = Review(description=data['description'], businessId=id)
             db.session.add(review)
             db.session.commit()
-            response = {"Messgae": "Successfully Added Review",
-                        "Review Data": data
+            response = {'review_data': data,
+                        'message': "Successfully Added Review",
+                        'status': "Success"
                         }
         except:
             return make_response(("Exited with error"), 401)
     else:
-        return make_response(("Business does not exist"), 401)
+        return make_response(jsonify({'message': "Business does not exist",
+                                      'status': "Failed"})), 401
     return jsonify(response), 201
 
 
@@ -285,6 +383,8 @@ def viewreview(current_user, id):
         for review in reviews:
             if review['businessId']:
                 value.append(review)
-        return jsonify({"Reviews": value})
+        return jsonify({"review_data": value,
+                        'status': "Success"})
     else:
-        return make_response(("Business does not exist"), 401)
+        return make_response(jsonify({'message': "Business does not exist",
+                                      'status': "Failed"})), 401

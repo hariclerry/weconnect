@@ -19,16 +19,16 @@ def token_required(funct):
         if 'access_token' in request.headers:
             token = request.headers['access_token']
             if not token:
-                return jsonify({"message": "Token is missing"}), 401
+                return jsonify({'message': "Token is missing"}), 401
             try:
                 data = jwt.decode(token, 'hard to guess string')
                 user = User.query.filter_by(id=data['sub']).first()
                 current_user = user
             except:
-                return jsonify({"message": "Token is invalid"}), 401
+                return jsonify({'message': "Token is invalid"}), 401
             return funct(current_user, *args, **kwargs)
         else:
-            return jsonify({"error": "Token required"}), 401
+            return jsonify({'error': "Token required"}), 401
     return decorated_funct
 
 
@@ -86,7 +86,8 @@ def signup():
 
     if user:
         respond = {
-            'message': 'User already exists. Please login'
+            'message': 'User already exists. Please login',
+            'status': "Failed"
         }
         return make_response(jsonify(respond)), 409
 
@@ -94,8 +95,8 @@ def signup():
     user = User(username=username, email=email, password=password)
     user.save()
     respond = {
-        "Success": True,
-        "message": "Registration successful. Please login"
+        'message': "Registration successful. Please login",
+        'status': "Success"
     }
     return jsonify(respond), 201
 
@@ -115,15 +116,17 @@ def signin():
         access_token = user.generate_token(user.id)
         if access_token:
             respond = {
-                'message': 'You logged in successfully.',
-                'access_token': access_token.decode()
+                'message': "You logged in successfully.",
+                'access_token': access_token.decode(),
+                'status': "Success"
             }
             return make_response(jsonify(respond)), 200
 
     # User does not exist. Therefore, return an error message
     else:
         respond = {
-            'message': 'Invalid email or password, Please try again'
+            'message': "Invalid email or password, Please try again",
+            'status': "Failed"
         }
         return make_response(jsonify(respond)), 401
 
@@ -142,18 +145,23 @@ def reset_password(current_user):
         user.save()
         return make_response(
             jsonify({
-                    'message': 'Password changed successfully'
+                    'message': "Password changed successfully",
+                    'status': "Success"
                     })), 201
     else:
         return make_response(
             jsonify({
-                    'message': 'password never changed'
+                    'message': 'password not changed',
+                    'status': "Failed"
                     })), 400
-    return make_response(jsonify({'message': 'Wrong Password'})), 401
+    return make_response(jsonify({'message': 'Wrong Password',
+                                  'status': "Failed" })), 401
 
 
 @auth.route('/api/auth/logout', methods=['POST'])
 # @swag_from('../api-docs/v1/logout_user.yml')
 @token_required
 def logout():
-    return make_response(("Successfully logged out"), 200)
+    return make_response(
+            jsonify({'message':"Successfully logged out",
+                     'status': "Success" })), 200
