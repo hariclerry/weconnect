@@ -135,8 +135,8 @@ class Business(db.Model):
         prev_page = paginate.prev_num \
             if paginate.has_prev else None
         if len(output) > 0:
-            return {"success": True, "businesses": output, "next_page": next_page, "prev_page": prev_page}
-        return {"success": False, "businesses": output}
+            return {"status": "Success", "businesses": output, "next_page": next_page, "prev_page": prev_page}
+        return {"status": "Success", "businesses": output}
 
     @staticmethod
     def get_all():
