@@ -47,38 +47,38 @@ def signup():
         if username and isinstance(username, int):
             return make_response(
                 jsonify({
-                    'Message': "Username cannot be number"
+                    'message': "Username cannot be number"
                 })), 400
 
         if username.strip() == "":
             return make_response(
                 jsonify({
-                    'Message': "Username cannot be empty"
+                    'message': "Username cannot be empty"
                 })), 400
         if re.match(r'.*[\%\$\^\*\@\!\?\(\)\:\;\&\'\"\{\}\[\]].*', username):
             return make_response(
                 jsonify({
-                    'Message': "Username should not have special characters"
+                    'message': "Username should not have special characters"
                 })), 400
         if email.strip() == "":
             return make_response(
                 jsonify({
-                    'Message': "Email cannot be empty"
+                    'message': "Email cannot be empty"
                 })), 400
         if not re.match(r"([\w\.-]+)@([\w\.-]+)(\.[\w\.]+$)", email):
             return make_response(
                 jsonify({
-                    'Message': "Invalid Email input"
+                    'message': "Invalid Email input"
                 })), 400
         if password.strip() == "":
             return make_response(
                 jsonify({
-                    'Message': "Password cannot be empty"
+                    'message': "Password cannot be empty"
                 })), 400
         if len(password) < 4:
             return make_response(
                 jsonify({
-                    'Message': "Password is too short"
+                    'message': "Password is too short"
                 })), 400
 
     # Query to see if the user already exists
@@ -86,7 +86,7 @@ def signup():
 
     if user:
         respond = {
-            'Message': 'User already exists. Please login'
+            'message': 'User already exists. Please login'
         }
         return make_response(jsonify(respond)), 409
 
@@ -95,7 +95,7 @@ def signup():
     user.save()
     respond = {
         "Success": True,
-        "Message": "Registration successful. Please login"
+        "message": "Registration successful. Please login"
     }
     return jsonify(respond), 201
 
@@ -115,7 +115,7 @@ def signin():
         access_token = user.generate_token(user.id)
         if access_token:
             respond = {
-                'Message': 'You logged in successfully.',
+                'message': 'You logged in successfully.',
                 'access_token': access_token.decode()
             }
             return make_response(jsonify(respond)), 200
@@ -123,7 +123,7 @@ def signin():
     # User does not exist. Therefore, return an error message
     else:
         respond = {
-            'Message': 'Invalid email or password, Please try again'
+            'message': 'Invalid email or password, Please try again'
         }
         return make_response(jsonify(respond)), 401
 
@@ -142,12 +142,12 @@ def reset_password(current_user):
         user.save()
         return make_response(
             jsonify({
-                    'Message': 'Password changed successfully'
+                    'message': 'Password changed successfully'
                     })), 201
     else:
         return make_response(
             jsonify({
-                    'Message': 'password never changed'
+                    'message': 'password never changed'
                     })), 400
     return make_response(jsonify({'message': 'Wrong Password'})), 401
 

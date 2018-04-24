@@ -19,7 +19,7 @@ BUSINESSES_PER_PAGE = 3
 
 @main.route('/', methods=['GET'])
 def index():
-    return jsonify({"Message": "Welcome to WeConnect"})
+    return jsonify({"message": "Welcome to WeConnect"})
 
 
 @main.route('/api/businesses',  methods=['POST'])
@@ -40,83 +40,83 @@ def register_business(current_user):
     if name.strip() == "":
         return make_response(
             jsonify({
-                'Message': "Name cannot be empty"
+                'message': "Name cannot be empty"
             })), 400
     if name.isdigit():
         return make_response(
             jsonify({
-                'Message': "Name cannot be integer"
+                'message': "Name cannot be integer"
             })), 400
     if re.match(r'.*[\%\$\^\*\@\!\?\(\)\:\;\&\'\"\{\}\[\]].*',
                 str(name)):
         return make_response(
             jsonify({
-                'Message': "Name should not have special characters"
+                'message': "Name should not have special characters"
             })), 400
     if category and isinstance(category, int):
         return make_response(
             jsonify({
-                'Message': "Category cannot be number"
+                'message': "Category cannot be number"
             })), 400
     if category and category.isdigit():
         return make_response(
             jsonify({
-                'Message': 'Category cannot be Integer'
+                'message': 'Category cannot be Integer'
             })), 400
     if category.strip() == "":
         return make_response(
             jsonify({
-                'Message': "Category cannot be empty"
+                'message': "Category cannot be empty"
             })), 400
     if re.match(r'.*[\%\$\^\*\@\!\?\(\)\:\;\&\'\"\{\}\[\]].*',
                 str(category)):
         return make_response(
             jsonify({
-                'Message': "Category should not have special characters"
+                'message': "Category should not have special characters"
             })), 400
     if location and isinstance(location, int):
         return make_response(
             jsonify({
-                'Message': "Location cannot be number"
+                'message': "Location cannot be number"
             })), 400
     if re.match(r'.*[\%\$\^\*\@\!\?\(\)\:\;\&\'\"\{\}\[\]].*',
                 str(location)):
         return make_response(
             jsonify({
-                'Message':
+                'message':
                 "Location should not have special characters"
             })), 400
     if location.strip() == "":
         return make_response(
             jsonify({
-                'Message': "Location cannot be empty"
+                'message': "Location cannot be empty"
             })), 400
     if location and location.isdigit():
         return make_response(
             jsonify({
-                'Message': 'Location cannot be Integer'
+                'message': 'Location cannot be Integer'
             })), 400
     if description and isinstance(description, int):
         return make_response(
             jsonify({
-                'Message': "Description cannot be number"
+                'message': "Description cannot be number"
             })), 400
     if re.match(r'.*[\%\$\^\*\@\!\?\(\)\:\;\&\'\"\{\}\[\]].*',
                 str(description)):
         return make_response(
             jsonify({
-                'Message':
+                'message':
                 "Description should not have special characters"
             })), 400
     if description.strip() == "":
         return make_response(
             jsonify({
-                'Message': "Description cannot be empty"
+                'message': "Description cannot be empty"
             })), 400
     if description and description.isdigit():
         return make_response(
             jsonify({
-                'Message': 'Description cannot be Integer'
+                'message': 'Description cannot be Integer'
             })), 400
 
     # Check to see if business with that name exists before adding a new business
@@ -124,7 +124,7 @@ def register_business(current_user):
 
     if business:
         response = {
-            'Message': 'Business already exists'
+            'message': 'Business already exists'
         }
         return make_response(jsonify(response)), 409
     # adding a new business
@@ -141,7 +141,7 @@ def register_business(current_user):
         'Location': business.location,
         'Description': business.description,
         'User_id': current_user.id,
-        'Message': "Business successfully registered"
+        'message': "Business successfully registered"
     }
     return jsonify(response), 201
 
@@ -213,7 +213,7 @@ def delete_businesses(current_user, id):
     if business:
         business.delete()
         return jsonify({
-            "Message": "Business deleted successfully"
+            "message": "Business deleted successfully"
         }), 200
     return make_response(("Business does not exist"), 401)
 
@@ -231,23 +231,23 @@ def addreview(current_user, id):
     if description and isinstance(description, int):
         return make_response(
             jsonify({
-                'Message': "Description cannot be number"
+                'message': "Description cannot be number"
             })), 400
     if re.match(r'.*[\%\$\^\*\@\!\?\(\)\:\;\&\'\"\{\}\[\]].*',
                 str(description)):
         return make_response(
             jsonify({
-                'Message': "Description should not have special characters"
+                'message': "Description should not have special characters"
             })), 400
     if description.strip() == "":
         return make_response(
             jsonify({
-                'Message': "Description cannot be empty"
+                'message': "Description cannot be empty"
             })), 400
     if description and description.isdigit():
         return make_response(
             jsonify({
-                'Message': 'Description cannot be Integer'
+                'message': 'Description cannot be Integer'
             })), 400
 
     business = Business.query.filter_by(id=id).first()
