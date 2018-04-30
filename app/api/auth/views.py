@@ -168,7 +168,9 @@ def reset_password(current_user):
 # @swag_from('../api-docs/v1/logout_user.yml')
 @token_required
 def logout(current_user):
+    
     """ This endpoint logs out a logged in user """
+
     if 'access_token' in request.headers:
         token = request.headers['access_token']
 
@@ -181,11 +183,9 @@ def logout(current_user):
         blacklist_token = BlacklistToken(token=token)
         db.session.add(blacklist_token)
         db.session.commit()
-        return jsonify({'Message': 'Logged out successfully',
+        return jsonify({'Message': 'Successfully logged out',
                         'Status': 'Success'}), 200
     return jsonify({'Message': 'Authentication token required',
                     'Status': 'Failed'}), 403
 
-    # return make_response(
-    #         jsonify({'message':"Successfully logged out",
-    #                  'status': "Success" })), 200
+  
