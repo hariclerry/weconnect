@@ -18,6 +18,6 @@ env:
 before_script:
   - psql -c "CREATE DATABASE weconnect;" -U postgres
 script:
-  - nosetests --with-coverage --cover-package=app/api && coverage report
+  - nosetests --with-coverage --cover-erase --cover-package=app/api && coverage report
 after_success:
   - coveralls
