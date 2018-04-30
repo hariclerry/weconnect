@@ -46,13 +46,13 @@ class User(db.Model):
         """ Generates the access token"""
 
         try:
-            # set up a payload with an expiration time
+            # Set up a payload with an expiration time
             payload = {
                 'exp': datetime.utcnow() + timedelta(minutes=55),
                 'iat': datetime.utcnow(),
                 'sub': user_id
             }
-            # create the byte string token using the payload and the SECRET key
+            # Create the byte string token using the payload and the SECRET key
             jwt_string = jwt.encode(
                 payload,
                 'hard to guess string',
@@ -61,22 +61,22 @@ class User(db.Model):
             return jwt_string
 
         except Exception as e:
-            # return an error in string format if an exception occurs
+            # Return an error in string format if an exception occurs
             return str(e)
 
     @staticmethod
     def decode_token(token):
         """Decodes the access token from the Authorization header."""
         try:
-            # try to decode the token using our SECRET variable
+            # Try to decode the token using our SECRET variable
             payload = jwt.decode(token, 'hard to guess string')
             return payload['sub']
         except jwt.ExpiredSignatureError:
-            # the token is expired, return an error string
-            return "Expired token. Please login to get a new token"
+            # The token is expired, return an error string
+            return 'Expired token. Please login to get a new token'
         except jwt.InvalidTokenError:
-            # the token is invalid, return an error string
-            return "Invalid token. Please register or login"
+            # The token is invalid, return an error string
+            return 'Invalid token. Please register or login'
 
 
 class Business(db.Model):
@@ -135,8 +135,8 @@ class Business(db.Model):
         prev_page = paginate.prev_num \
             if paginate.has_prev else None
         if len(output) > 0:
-            return {"status": "Success", "businesses": output, "next_page": next_page, "prev_page": prev_page}
-        return {"status": "Success", "businesses": output}
+            return {'status': 'Success', 'businesses': output, 'next_page': next_page, 'prev_page': prev_page}
+        return {'status': 'Success', 'businesses': output}
 
     @staticmethod
     def get_all():
@@ -145,10 +145,11 @@ class Business(db.Model):
     def delete(self):
         db.session.delete(self)
         db.session.commit()
-    # represents the object instance of the model whenever it is queries.
+
+    # Represents the object instance of the model whenever it is queried.
 
     def __repr__(self):
-        return "<Business: {}>".format(self.name)
+        return '<Business: {}>'.format(self.name)
 
 
 class Review(db.Model):
@@ -163,4 +164,17 @@ class Review(db.Model):
     def __init__(self, description, businessId):
         self.description = description
         self.businessId = businessId
+        db.create_all()
+
+
+class BlacklistToken(db.Model):
+
+    """This class represents the blacklisted token table."""
+
+    __tablename__ = 'blacklist_tokens'
+    id = db.Column(db.Integer, primary_key=True)
+    token = db.Column(db.String(600), unique=True, nullable=False)
+
+    def __init__(self, token):
+        self.token = token
         db.create_all()
