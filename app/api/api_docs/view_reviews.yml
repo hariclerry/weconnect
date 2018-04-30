@@ -3,7 +3,7 @@ Endpoint to get all of a business's reviews
 tags:
   - Review
 parameters:
-  - name: Authorization
+  - name: access_token
     description: A json web token to be used for each request
     type: string
     in: header

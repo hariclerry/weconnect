@@ -3,7 +3,7 @@ Endpoint to delete business information using an id value
 tags:
   - Business
 parameters:
-  - name: Authorization
+  - name: access_token
     description: A json web token to be used for each request
     type: string
     in: header
@@ -20,7 +20,7 @@ responses:
     schema: 
       type: object
       properties:
-        "Message":
+        "message":
           type: object
           enum:
             - "Business deleted successfully"
@@ -29,7 +29,7 @@ responses:
     schema: 
       type: object
       properties:
-        "Message":
+        "message":
           type: string
           enum:
             - "Business does not exist"

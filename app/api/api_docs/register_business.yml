@@ -27,7 +27,7 @@ parameters:
         description:
           type: "string"
           example: "This is Andela"
-  - name: Authorization
+  - name: access_token
     description: A json web token to be used for each request
     type: string
     in: header

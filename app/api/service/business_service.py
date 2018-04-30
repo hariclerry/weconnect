@@ -9,27 +9,17 @@ class BusinessService(object):
         self.arg = arg
 
 
-    def register_business(self, user_id, business):
-        """docstring for register business"""
-        # fields = ["name", "category", "location"]
-        # result = self.check_req_fields(business, fields)
-        # if result["success"]:
-        #     Business(user_id=user_id, name=business["name"], category=business["category"],
-        #              location=business["location"]).register_business()
-        #     return jsonify({"success":True, "message":"Business Created"}), 201
-        # return jsonify(result), 422
-
-    # paginante businesses
+    # Paginante businesses
     @staticmethod
     def get_businesses(page, limit, search_string, location, category):
         """docstring for paginating through the business"""
         filters = {}
-        # generate filters
+        # Generate filters
         if location is not None:
-            filters["location"] = location
+            filters['location'] = location
         if category is not None:
-            filters["category"] = category
+            filters['category'] = category
         res = Business.get_businesses(page, limit, search_string, filters)
-        if res["success"]:
+        if res['status']:
             return jsonify(res), 200
         return jsonify(res), 404

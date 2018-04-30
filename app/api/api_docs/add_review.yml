@@ -40,7 +40,7 @@ responses:
     schema: 
       type: object
       properties:
-        "Message":
+        "message":
           type: string
           enum:
             - "Business does not exist"
