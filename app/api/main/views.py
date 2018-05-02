@@ -123,7 +123,7 @@ def register_business(current_user):
     if business:
         response = {
             'message': 'Business already exists',
-            'status': 'Success'
+            'status': 'Failed'
         }
         return make_response(jsonify(response)), 409
     # Add a new business
@@ -141,7 +141,7 @@ def register_business(current_user):
             'Description': business.description,
             'User_id': current_user.id},
             'message': 'Business successfully registered',
-            'status': 'Succes'
+            'status': 'Success'
     }
     return jsonify(response), 201
 

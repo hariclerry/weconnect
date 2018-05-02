@@ -18,22 +18,26 @@ def token_required(funct):
         token = None
         if 'access_token' in request.headers:
             token = request.headers['access_token']
-            if not token:
-                return jsonify({'message': "Token is missing"}), 401
+            if token is None:
+                return jsonify({'message': 'Token is missing',
+                                'status': 'Failed'}), 401
             # check if token is blacklisted
             blacklisted_token = BlacklistToken.query.filter_by(
                 token=token).first()
-            if blacklisted_token:
-                return jsonify({'Message': 'Expired token, Login again'}), 403
+            if blacklisted_token is not None:
+                return jsonify({'message': 'Expired token, Login again',
+                                'status': 'Failed'}), 403
             try:
                 data = jwt.decode(token, 'hard to guess string')
                 user = User.query.filter_by(id=data['sub']).first()
                 current_user = user
             except:
-                return jsonify({'message': 'Token is invalid'}), 401
+                return jsonify({'message': 'Token is invalid',
+                                'status': 'Failed'}), 401
             return funct(current_user, *args, **kwargs)
         else:
-            return jsonify({'error': 'Token required'}), 401
+            return jsonify({'error': 'Token required',
+                            'status': 'Failed'}), 401
     return decorated_funct
 
 
@@ -47,63 +51,62 @@ def signup():
     email = data['email'].strip()
     password = data['password'].strip()
 
-    if username and email and password:
+    if not username or not email or not password:
+        return jsonify({'message': 'Please fill in all the fields',
+                        'status': 'Failed'}), 400
 
-        if username and isinstance(username, int):
+    if not username.isalpha():
             return make_response(
-                jsonify({
-                    'message': 'Username cannot be number'
-                })), 400
+                jsonify({'message': 'Username should contain letters only',
+                         'status': 'Failed'})), 400
 
-        if username.strip() == "":
+        # if username.strip() == "":
+        #     return make_response(
+        #         jsonify({
+        #             'message': 'Username cannot be empty'
+        #         })), 400
+    # if re.match(r'.*[\%\$\^\*\@\!\?\(\)\:\;\&\'\"\{\}\[\]].*', username):
+    #         return make_response(
+    #             jsonify({
+    #                 'message': 'Username should not have special characters'
+    #             })), 400
+    # if email.strip() == "":
+    #         return make_response(
+    #             jsonify({
+    #                 'message': 'Email cannot be empty'
+    #             })), 400
+    if not re.match(r"([\w\.-]+)@([\w\.-]+)(\.[\w\.]+$)", email):
             return make_response(
-                jsonify({
-                    'message': 'Username cannot be empty'
-                })), 400
-        if re.match(r'.*[\%\$\^\*\@\!\?\(\)\:\;\&\'\"\{\}\[\]].*', username):
+                jsonify({'message': 'Invalid Email input',
+                         'status': 'Failed'})), 400
+    # if password.strip() == "":
+    #         return make_response(
+    #             jsonify({
+    #                 'message': 'Password cannot be empty'
+    #             })), 400
+    if len(password) < 4:
             return make_response(
-                jsonify({
-                    'message': 'Username should not have special characters'
-                })), 400
-        if email.strip() == "":
-            return make_response(
-                jsonify({
-                    'message': 'Email cannot be empty'
-                })), 400
-        if not re.match(r"([\w\.-]+)@([\w\.-]+)(\.[\w\.]+$)", email):
-            return make_response(
-                jsonify({
-                    'message': 'Invalid Email input'
-                })), 400
-        if password.strip() == "":
-            return make_response(
-                jsonify({
-                    'message': 'Password cannot be empty'
-                })), 400
-        if len(password) < 4:
-            return make_response(
-                jsonify({
-                    'message': 'Password is too short'
-                })), 400
+                jsonify({'message': 'Password is too short',
+                         'status': 'Failed'})), 400
 
     # Query to see if the user already exists
     user = User.query.filter_by(email=data['email']).first()
 
-    if user:
-        respond = {
+    if user is not None:
+        response = {
             'message': 'User already exists. Please login',
             'status': 'Failed'
         }
-        return make_response(jsonify(respond)), 409
+        return make_response(jsonify(response)), 409
 
     # If there is no user with such email address, register the new user
     user = User(username=username, email=email, password=password)
     user.save()
-    respond = {
+    response = {
         'message': 'Registration successful. Please login',
         'status': 'Success'
     }
-    return jsonify(respond), 201
+    return make_response(jsonify(response)), 201
 
 
 @auth.route('/api/auth/login', methods=['POST'])
@@ -120,20 +123,20 @@ def signin():
             # Generate the access token. This will be used as the authorization header
         access_token = user.generate_token(user.id)
         if access_token:
-            respond = {
+            response = {
                 'message': 'You logged in successfully.',
                 'access_token': access_token.decode(),
                 'status': 'Success'
             }
-            return make_response(jsonify(respond)), 200
+            return make_response(jsonify(response)), 200
 
     # User does not exist. Therefore, return an error message
     else:
-        respond = {
+        response = {
             'message': 'Invalid email or password, Please try again',
             'status': 'Failed'
         }
-        return make_response(jsonify(respond)), 401
+        return make_response(jsonify(response)), 401
 
 
 @auth.route('/api/auth/reset_password', methods=['POST'])
@@ -144,7 +147,7 @@ def reset_password(current_user):
 
     data = request.get_json()
 
-    new_password = data.get('new_password')
+    new_password = data.get('new_password').strip()
     user = User.query.filter_by(email=data['email']).first()
     if not user.password_is_valid(new_password):
         user.reset_password(new_password)
