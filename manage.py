@@ -1,9 +1,15 @@
-# from flask_script import Manager
+import os
+from flask_migrate import Migrate, MigrateCommand
+from flask_script import Manager
+from app import db, create_app
 
-# # create an instance of class that will handle our commands
-# manager = Manager(app)
+config_name = os.getenv("APP_SETTINGS")
 
+app = create_app("development")
+migrate = Migrate(app, db)
+manager = Manager(app)
 
+manager.add_command('db', MigrateCommand)
 
-# if __name__ == '__main__':
-#     manager.run()
+if __name__ == '__main__':
+    manager.run()
