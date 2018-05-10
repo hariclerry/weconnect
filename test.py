@@ -23,7 +23,7 @@ class AllTestCase(unittest.TestCase):
 
         # create a dict to be used to edit business
         self.edited_business = {'name': 'Jumia Ltd',
-                                'category': 'Property',
+                                'category': 'Property and consu',
                                 'location': 'Entebbe',
                                 'description': 'Dealers in property management'
                                 }
