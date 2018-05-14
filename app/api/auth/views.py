@@ -43,7 +43,7 @@ def token_required(funct):
 
 @auth.route('/api/auth/register', methods=['POST'])
 @swag_from('../api_docs/signup.yml')
-def signup():
+def register_user():
     """This Endpoint handles registration of new users."""
 
     data = request.get_json()
@@ -90,7 +90,7 @@ def signup():
 
 @auth.route('/api/auth/login', methods=['POST'])
 @swag_from('../api_docs/signin.yml')
-def signin():
+def login_user():
     """This Endpoint handles user login and access token generation."""
 
     data = request.get_json()
@@ -151,16 +151,16 @@ def reset_password(current_user):
     
     return make_response(
             jsonify({
-                    'message': 'Password has not been changed, please enter a new password',
+                    'message': 'Password not changed, please enter a new password',
                     'status': 'Failed'
-                    })), 400
+                    })), 401
  
 
 
 @auth.route('/api/auth/logout', methods=['POST'])
 @swag_from('../api-docs/v1/logout_user.yml')
 @token_required
-def logout(current_user):
+def logout_user(current_user):
     
     """ This endpoint logs out a logged in user """
     
@@ -178,7 +178,6 @@ def logout(current_user):
         return jsonify({'message': 'Successfully logged out',
                         'status': 'Success'}), 200
 
-    # return jsonify({'message': 'Authentication token required',
-    #                 'status': 'Failed'}), 403
+   
 
   

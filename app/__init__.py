@@ -7,7 +7,7 @@ from flask_migrate import Migrate
 from config import app_config
 
 
-
+app = Flask(__name__)
 # db variable initialization
 db = SQLAlchemy()
 
@@ -29,8 +29,11 @@ def create_app(config_name):
 	from app.api.auth import auth as auth5_blueprint
 	app.register_blueprint(auth5_blueprint, url_prefix='/v1')
 
-	from app.api.main import main as main_blueprint
-	app.register_blueprint(main_blueprint, url_prefix='/v1')
+	from app.api.business import business as business_blueprint
+	app.register_blueprint(business_blueprint, url_prefix='/v1')
+
+	from app.api.review import review as review_blueprint
+	app.register_blueprint(review_blueprint, url_prefix='/v1')
 
 	
 
