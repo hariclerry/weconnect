@@ -1,9 +1,9 @@
+from datetime import datetime, timedelta
 from sqlalchemy import Column, ForeignKey, Integer, String
 from sqlalchemy import create_engine
 from sqlalchemy.orm import relationship
 from flask_bcrypt import Bcrypt
 import jwt
-from datetime import datetime, timedelta
 from app import db
 
 

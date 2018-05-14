@@ -1,20 +1,18 @@
 # """This module defines the application endpoints"""
 
 from flask import request, jsonify, url_for, session, make_response, abort
-from flasgger import swag_from
-from functools import wraps
-import jwt
 import datetime
 import re
+from functools import wraps
+from flasgger import swag_from
+import jwt
 from app import db, models
-from app.api.auth.views import token_required
 from ..models import Review
-from app.api.models import Business
 from . import review
+from app.api.auth.views import token_required
+from app.api.models import Business
 
 
-
-   
 @review.route('/api/business/<id>/reviews', methods=['POST'])
 @token_required
 @swag_from('../api_docs/add_review.yml')
@@ -26,23 +24,23 @@ def add_review(current_user, id):
     description = data['description'].strip()
     # Validate json inputs
     if not description:
-            return jsonify({'message': 'Please enter description',
+        return jsonify({'message': 'Please enter description',
                         'status': 'Failed'}), 400
-   
+
     business = Business.query.filter_by(id=id).first()
 
     if business is None:
-         return make_response(jsonify({'message': 'Business does not exist',
-                                       'status': 'Failed'})), 401
+        return make_response(jsonify({'message': 'Business does not exist',
+                                      'status': 'Failed'})), 401
     else:
-            review = Review(description=data['description'], businessId=id)
-            db.session.add(review)
-            db.session.commit()
-            response = {'review_data': data,
-                        'message': 'Successfully Added Review',
-                        'status': 'Success' }
-            return jsonify(response), 201
-  
+        review = Review(description=data['description'], businessId=id)
+        db.session.add(review)
+        db.session.commit()
+        response = {'review_data': data,
+                    'message': 'Successfully Added Review',
+                    'status': 'Success'}
+        return jsonify(response), 201
+
 
 @review.route('/api/business/<id>/reviews', methods=['GET'])
 @token_required
@@ -69,5 +67,3 @@ def view_reviews(current_user, id):
                 value.append(review)
         return jsonify({'review_data': value,
                         'status': 'Success'})
-    
-        

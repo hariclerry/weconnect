@@ -5,11 +5,12 @@ from ..models import Business
 
 class BusinessService(object):
     """docstring for Business Class"""
+
     def __init__(self, arg=0):
         self.arg = arg
 
-
     # Paginante businesses
+
     @staticmethod
     def get_businesses(page, limit, search_string, location, category):
         """docstring for paginating through the business"""

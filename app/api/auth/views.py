@@ -1,15 +1,15 @@
 """This module defines the application endpoints"""
 
 from flask import request, jsonify, url_for, session, make_response, abort
-import jwt
 import random
-from flasgger import swag_from
-from functools import wraps
 import datetime
 import re
-from . import auth
+from functools import wraps
+import jwt
+from flasgger import swag_from
 from app import db, models
 from app.api.models import User, BlacklistToken
+from . import auth
 
 
 def token_required(funct):
@@ -56,17 +56,17 @@ def register_user():
                         'status': 'Failed'}), 400
 
     if not username.isalpha():
-            return make_response(
-                jsonify({'message': 'Username should contain letters only',
-                         'status': 'Failed'})), 400
+        return make_response(
+            jsonify({'message': 'Username should contain letters only',
+                     'status': 'Failed'})), 400
     if not re.match(r"([\w\.-]+)@([\w\.-]+)(\.[\w\.]+$)", email):
-            return make_response(
-                jsonify({'message': 'Invalid Email input',
-                         'status': 'Failed'})), 400
+        return make_response(
+            jsonify({'message': 'Invalid Email input',
+                     'status': 'Failed'})), 400
     if len(password) < 4:
-            return make_response(
-                jsonify({'message': 'Password is too short',
-                         'status': 'Failed'})), 400
+        return make_response(
+            jsonify({'message': 'Password is too short',
+                     'status': 'Failed'})), 400
 
     # Query to see if the user already exists
     user = User.query.filter_by(email=data['email']).first()
@@ -99,7 +99,7 @@ def login_user():
     user = User.query.filter_by(email=data['email']).first()
     # Try to authenticate the found user using their password
     if user and user.password_is_valid(data['password']):
-            # Generate the access token. This will be used as the authorization header
+        # Generate the access token. This will be used as the authorization header
         access_token = user.generate_token(user.id)
         if access_token:
             response = {
@@ -112,8 +112,8 @@ def login_user():
     # User does not exist. Therefore, return an error message
     else:
         response = {'message': 'Invalid email or password, Please try again',
-            'status': 'Failed'
-        }
+                    'status': 'Failed'
+                    }
         return make_response(jsonify(response)), 401
 
 
@@ -128,11 +128,11 @@ def reset_password(current_user):
     new_password = data.get('new_password').strip()
     if not email or not new_password:
         return jsonify({'message': 'Please Fill in all credentials',
-                          'status': 'Failed'}), 400
+                        'status': 'Failed'}), 400
     if len(new_password) < 4:
-            return make_response(
-                jsonify({'message': 'Password is too short',
-                         'status': 'Failed'})), 400
+        return make_response(
+            jsonify({'message': 'Password is too short',
+                     'status': 'Failed'})), 400
 
     user = User.query.filter_by(email=data['email']).first()
 
@@ -148,22 +148,20 @@ def reset_password(current_user):
                     'message': 'Password changed successfully',
                     'status': 'Success'
                     })), 201
-    
+
     return make_response(
-            jsonify({
-                    'message': 'Password not changed, please enter a new password',
-                    'status': 'Failed'
-                    })), 401
- 
+        jsonify({
+            'message': 'Password not changed, please enter a new password',
+            'status': 'Failed'
+        })), 401
 
 
 @auth.route('/api/auth/logout', methods=['POST'])
 @swag_from('../api-docs/v1/logout_user.yml')
 @token_required
 def logout_user(current_user):
-    
     """ This endpoint logs out a logged in user """
-    
+
     token = request.headers['access_token']
 
     blacklisted_token = BlacklistToken.query.filter_by(token=token).first()
@@ -177,7 +175,3 @@ def logout_user(current_user):
         db.session.commit()
         return jsonify({'message': 'Successfully logged out',
                         'status': 'Success'}), 200
-
-   
-
-  
