@@ -18,28 +18,32 @@ def token_required(funct):
         token = None
         if 'access_token' in request.headers:
             token = request.headers['access_token']
-            if not token:
-                return jsonify({'message': "Token is missing"}), 401
+            if token is None:
+                return jsonify({'message': 'Token is missing',
+                                'status': 'Failed'}), 401
             # check if token is blacklisted
             blacklisted_token = BlacklistToken.query.filter_by(
                 token=token).first()
-            if blacklisted_token:
-                return jsonify({'Message': 'Expired token, Login again'}), 403
+            if blacklisted_token is not None:
+                return jsonify({'message': 'Expired token, Login again',
+                                'status': 'Failed'}), 403
             try:
                 data = jwt.decode(token, 'hard to guess string')
                 user = User.query.filter_by(id=data['sub']).first()
                 current_user = user
             except:
-                return jsonify({'message': 'Token is invalid'}), 401
+                return jsonify({'message': 'Token is invalid',
+                                'status': 'Failed'}), 401
             return funct(current_user, *args, **kwargs)
         else:
-            return jsonify({'error': 'Token required'}), 401
+            return jsonify({'error': 'Token required',
+                            'status': 'Failed'}), 401
     return decorated_funct
 
 
 @auth.route('/api/auth/register', methods=['POST'])
 @swag_from('../api_docs/signup.yml')
-def signup():
+def register_user():
     """This Endpoint handles registration of new users."""
 
     data = request.get_json()
@@ -47,68 +51,46 @@ def signup():
     email = data['email'].strip()
     password = data['password'].strip()
 
-    if username and email and password:
+    if not username or not email or not password:
+        return jsonify({'message': 'Please fill in all the credentials',
+                        'status': 'Failed'}), 400
 
-        if username and isinstance(username, int):
+    if not username.isalpha():
             return make_response(
-                jsonify({
-                    'message': 'Username cannot be number'
-                })), 400
-
-        if username.strip() == "":
+                jsonify({'message': 'Username should contain letters only',
+                         'status': 'Failed'})), 400
+    if not re.match(r"([\w\.-]+)@([\w\.-]+)(\.[\w\.]+$)", email):
             return make_response(
-                jsonify({
-                    'message': 'Username cannot be empty'
-                })), 400
-        if re.match(r'.*[\%\$\^\*\@\!\?\(\)\:\;\&\'\"\{\}\[\]].*', username):
+                jsonify({'message': 'Invalid Email input',
+                         'status': 'Failed'})), 400
+    if len(password) < 4:
             return make_response(
-                jsonify({
-                    'message': 'Username should not have special characters'
-                })), 400
-        if email.strip() == "":
-            return make_response(
-                jsonify({
-                    'message': 'Email cannot be empty'
-                })), 400
-        if not re.match(r"([\w\.-]+)@([\w\.-]+)(\.[\w\.]+$)", email):
-            return make_response(
-                jsonify({
-                    'message': 'Invalid Email input'
-                })), 400
-        if password.strip() == "":
-            return make_response(
-                jsonify({
-                    'message': 'Password cannot be empty'
-                })), 400
-        if len(password) < 4:
-            return make_response(
-                jsonify({
-                    'message': 'Password is too short'
-                })), 400
+                jsonify({'message': 'Password is too short',
+                         'status': 'Failed'})), 400
 
     # Query to see if the user already exists
     user = User.query.filter_by(email=data['email']).first()
 
-    if user:
-        respond = {
+    if user is not None:
+        response = {
             'message': 'User already exists. Please login',
             'status': 'Failed'
         }
-        return make_response(jsonify(respond)), 409
+        return make_response(jsonify(response)), 409
 
     # If there is no user with such email address, register the new user
     user = User(username=username, email=email, password=password)
     user.save()
-    respond = {
+    response = {
         'message': 'Registration successful. Please login',
         'status': 'Success'
     }
-    return jsonify(respond), 201
+    return make_response(jsonify(response)), 201
 
 
 @auth.route('/api/auth/login', methods=['POST'])
 @swag_from('../api_docs/signin.yml')
-def signin():
+def login_user():
     """This Endpoint handles user login and access token generation."""
 
     data = request.get_json()
@@ -120,32 +102,44 @@ def signin():
             # Generate the access token. This will be used as the authorization header
         access_token = user.generate_token(user.id)
         if access_token:
-            respond = {
+            response = {
                 'message': 'You logged in successfully.',
                 'access_token': access_token.decode(),
                 'status': 'Success'
             }
-            return make_response(jsonify(respond)), 200
+            return make_response(jsonify(response)), 200
 
     # User does not exist. Therefore, return an error message
     else:
-        respond = {
-            'message': 'Invalid email or password, Please try again',
+        response = {'message': 'Invalid email or password, Please try again',
             'status': 'Failed'
         }
-        return make_response(jsonify(respond)), 401
+        return make_response(jsonify(response)), 401
 
 
 @auth.route('/api/auth/reset_password', methods=['POST'])
-# @swag_from('../api-docs/v1/reset_password.yml')
+@swag_from('../api-docs/v1/reset_password.yml')
 @token_required
 def reset_password(current_user):
     """ This endpoint enables user reset-password """
 
     data = request.get_json()
+    email = data['email'].strip()
+    new_password = data.get('new_password').strip()
+    if not email or not new_password:
+        return jsonify({'message': 'Please Fill in all credentials',
+                          'status': 'Failed'}), 400
+    if len(new_password) < 4:
+            return make_response(
+                jsonify({'message': 'Password is too short',
+                         'status': 'Failed'})), 400
 
-    new_password = data.get('new_password')
     user = User.query.filter_by(email=data['email']).first()
+
+    if user is None:
+        return make_response(jsonify({'message': 'Wrong Email address',
+                                      'status': 'Failed'})), 401
+
     if not user.password_is_valid(new_password):
         user.reset_password(new_password)
         user.save()
@@ -154,38 +148,36 @@ def reset_password(current_user):
                     'message': 'Password changed successfully',
                     'status': 'Success'
                     })), 201
-    else:
-        return make_response(
+    
+    return make_response(
             jsonify({
-                    'message': 'password not changed',
+                    'message': 'Password not changed, please enter a new password',
                     'status': 'Failed'
-                    })), 400
-    return make_response(jsonify({'message': 'Wrong Password',
-                                  'status': 'Failed'})), 401
+                    })), 401
+ 
 
 
 @auth.route('/api/auth/logout', methods=['POST'])
-# @swag_from('../api-docs/v1/logout_user.yml')
+@swag_from('../api-docs/v1/logout_user.yml')
 @token_required
-def logout(current_user):
+def logout_user(current_user):
     
     """ This endpoint logs out a logged in user """
-
-    if 'access_token' in request.headers:
-        token = request.headers['access_token']
+    
+    token = request.headers['access_token']
 
     blacklisted_token = BlacklistToken.query.filter_by(token=token).first()
 
-    if blacklisted_token:
-        return jsonify({'Message': 'Logged out already',
-                        'Status': 'Failed'}), 403
+    if blacklisted_token is not None:
+        return jsonify({'message':  'Authentication token required',
+                        'status': 'Failed'}), 403
     else:
         blacklist_token = BlacklistToken(token=token)
         db.session.add(blacklist_token)
         db.session.commit()
-        return jsonify({'Message': 'Successfully logged out',
-                        'Status': 'Success'}), 200
-    return jsonify({'Message': 'Authentication token required',
-                    'Status': 'Failed'}), 403
+        return jsonify({'message': 'Successfully logged out',
+                        'status': 'Success'}), 200
+
+   
 
   
