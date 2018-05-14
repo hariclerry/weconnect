@@ -37,7 +37,7 @@ def register_business(current_user):
     location = data['location'].strip()
     description = data['description'].strip()
 
-    # Validate json inputs
+    # Validate Json input data
     if not name or not category or not location or not description:
         return jsonify({'message': 'Please fill in all the credentials',
                         'status': 'Failed'}), 400
