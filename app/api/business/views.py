@@ -12,9 +12,7 @@ from app import db, models
 from app.api.models import Business
 from app.api.auth.views import token_required
 from . import business
-from .business_helper import BusinessService
 
-PAG_PAGE = BusinessService()
 
 BUSINESSES_PER_PAGE = 3
 
@@ -89,7 +87,7 @@ def view_businesses(current_user):
     page = request.args.get('page', 1, type=int)
     limit = request.args.get('limit', BUSINESSES_PER_PAGE, type=int)
 
-    return PAG_PAGE.get_businesses(page, limit, search_string, location, category)
+    return Business.get_business(page, limit, search_string, location, category)
 
 
 @business.route('/api/businesses/<id>', methods=['GET'])
@@ -109,7 +107,8 @@ def view_business(current_user, id):
         output['category'] = business.category
         output['location'] = business.location
         output['description'] = business.description
-        return jsonify({'business_data': output}),  200
+        return jsonify({'business_data': output,
+                         'status': 'Success'}),  200
 
 
 @business.route('/api/businesses/<id>', methods=['PUT'])

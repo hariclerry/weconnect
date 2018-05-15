@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 
 import jwt
 from flask_bcrypt import Bcrypt
+from flask import jsonify
 from sqlalchemy import create_engine
 from sqlalchemy.orm import relationship
 from sqlalchemy import Column, ForeignKey, Integer, String
@@ -108,6 +109,22 @@ class Business(db.Model):
     def save(self):
         db.session.add(self)
         db.session.commit()
+
+    @staticmethod
+    def get_business(page, limit, search_string, location, category):
+        """docstring for paginating through the business"""
+        filters = {}
+        # Generate filters
+        if location is not None:
+            filters['location'] = location
+        if category is not None:
+            filters['category'] = category
+        res = Business.get_businesses(page, limit, search_string, filters)
+        if res['status']:
+            return jsonify({'search_data': res,
+                            'status': "Success"}), 200
+        return jsonify({'search_data': res,
+                        'status': "Failed"}), 404
 
     @staticmethod
     def get_businesses(page, limit, search_string, filters):
