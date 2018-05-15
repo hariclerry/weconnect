@@ -1,5 +1,6 @@
 """docstring for Business Controller"""
 from flask import jsonify
+
 from ..models import Business
 
 
@@ -9,7 +10,7 @@ class BusinessService(object):
     def __init__(self, arg=0):
         self.arg = arg
 
-    # Paginante businesses
+    # Paginate businesses
 
     @staticmethod
     def get_businesses(page, limit, search_string, location, category):

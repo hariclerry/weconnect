@@ -1,9 +1,13 @@
+"""This module defines the database models"""
+
 from datetime import datetime, timedelta
-from sqlalchemy import Column, ForeignKey, Integer, String
+
+import jwt
+from flask_bcrypt import Bcrypt
 from sqlalchemy import create_engine
 from sqlalchemy.orm import relationship
-from flask_bcrypt import Bcrypt
-import jwt
+from sqlalchemy import Column, ForeignKey, Integer, String
+
 from app import db
 
 
@@ -135,8 +139,8 @@ class Business(db.Model):
         prev_page = paginate.prev_num \
             if paginate.has_prev else None
         if len(output) > 0:
-            return {'status': 'Success', 'businesses': output, 'next_page': next_page, 'prev_page': prev_page}
-        return {'status': 'Success', 'businesses': output}
+            return {'status': 'Success', 'business_data': output, 'next_page': next_page, 'prev_page': prev_page}
+        return {'status': 'Success', 'business_data': output}
 
     @staticmethod
     def get_all():

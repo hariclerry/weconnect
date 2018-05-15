@@ -1,15 +1,17 @@
 # """This module defines the application endpoints"""
 
-from flask import request, jsonify, url_for, session, make_response, abort
-import datetime
 import re
+import datetime
 from functools import wraps
-from flasgger import swag_from
+
 import jwt
+from flasgger import swag_from
+from flask import request, jsonify, url_for, session, make_response, abort
+
 from app import db, models
 from app.api.models import Business
-from . import business
 from app.api.auth.views import token_required
+from . import business
 from .business_helper import BusinessService
 
 PAG_PAGE = BusinessService()
@@ -59,7 +61,7 @@ def register_business(current_user):
                         user_id=current_user.id)
     business.save()
     response = {
-        'Business_data': {'Id': business.id,
+        'business_data': {'Id': business.id,
                           'Name': business.name,
                           'Category': business.category,
                           'Location': business.location,
@@ -107,7 +109,7 @@ def view_business(current_user, id):
         output['category'] = business.category
         output['location'] = business.location
         output['description'] = business.description
-        return jsonify({'Business Data': output}),  200
+        return jsonify({'business_data': output}),  200
 
 
 @business.route('/api/businesses/<id>', methods=['PUT'])
@@ -160,6 +162,5 @@ def delete_business(current_user, id):
 
     else:
         business.delete()
-        return jsonify({
-            'message': 'Business deleted successfully',
-            'status': 'Success'}), 200
+        return jsonify({'message': 'Business deleted successfully',
+                        'status': 'Success'}), 200

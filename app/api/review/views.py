@@ -1,16 +1,19 @@
-# """This module defines the application endpoints"""
+# """This module defines the application endpoints for Business Reviews"""
 
-from flask import request, jsonify, url_for, session, make_response, abort
-import datetime
 import re
+import datetime
 from functools import wraps
-from flasgger import swag_from
+
 import jwt
+from flasgger import swag_from
+from flask import request, jsonify, url_for, session, make_response, abort
+
 from app import db, models
-from ..models import Review
-from . import review
-from app.api.auth.views import token_required
 from app.api.models import Business
+from app.api.auth.views import token_required
+from . import review
+from ..models import Review
+
 
 
 @review.route('/api/business/<id>/reviews', methods=['POST'])

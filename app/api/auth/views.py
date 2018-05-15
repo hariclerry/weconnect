@@ -1,12 +1,13 @@
 """This module defines the application endpoints"""
-
-from flask import request, jsonify, url_for, session, make_response, abort
+import re
 import random
 import datetime
-import re
 from functools import wraps
+
 import jwt
 from flasgger import swag_from
+from flask import request, jsonify, url_for, session, make_response, abort
+
 from app import db, models
 from app.api.models import User, BlacklistToken
 from . import auth
