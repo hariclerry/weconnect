@@ -1,3 +1,4 @@
+"""This module defines the Common configurations settings"""
 import os
 
 class Config(object):

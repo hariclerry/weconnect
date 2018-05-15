@@ -1,9 +1,12 @@
-# third-party imports
+# """This module defines the application Factory"""
+
 import os
+
 from flask import Flask
 from flasgger import Swagger
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+
 from config import app_config
 
 
