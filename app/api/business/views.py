@@ -1,4 +1,4 @@
-# """This module defines the application endpoints"""
+# """This module defines the application endpoints for Businesses"""
 
 import re
 import datetime

@@ -1,4 +1,4 @@
-"""This module defines the application endpoints"""
+"""This module defines the application endpoints for Users"""
 import re
 import random
 import datetime
@@ -119,7 +119,7 @@ def login_user():
 
 
 @auth.route('/api/auth/reset_password', methods=['POST'])
-@swag_from('../api-docs/v1/reset_password.yml')
+@swag_from('../api_docs/reset_password.yml')
 @token_required
 def reset_password(current_user):
     """ This endpoint enables user reset-password """
@@ -158,7 +158,7 @@ def reset_password(current_user):
 
 
 @auth.route('/api/auth/logout', methods=['POST'])
-@swag_from('../api-docs/v1/logout_user.yml')
+@swag_from('../api_docs/logout_user.yml')
 @token_required
 def logout_user(current_user):
     """ This endpoint logs out a logged in user """

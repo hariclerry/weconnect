@@ -1,0 +1,31 @@
+Endpoint to logout a registered user
+---
+tags:
+  - User
+parameters:
+  - name: access_token
+    description: A json web token to be used for each request
+    type: string
+    in: header
+    required: true
+
+responses:
+  200:
+    description: User logout successful
+    schema: 
+      type: object
+      properties:
+        message:
+          type: string
+          enum:
+            - "Successfully logged out"
+      
+  403:
+    description: A token error or missing token
+    schema: 
+      type: object
+      properties:
+        message:
+          type: string
+          enum:
+            - "Authentication token required"
