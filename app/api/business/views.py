@@ -87,7 +87,27 @@ def view_businesses(current_user):
     page = request.args.get('page', 1, type=int)
     limit = request.args.get('limit', BUSINESSES_PER_PAGE, type=int)
 
-    return Business.get_business(page, limit, search_string, location, category)
+    paginate = Business.get_businesses(page, limit, search_string, location, category)
+
+    businesses = paginate.items
+    output = []
+    for business in businesses:
+        business_data = {
+            'id': business.id,
+            'name': business.name,
+            'category': business.category,
+            'location': business.location,
+            'description': business.description
+        }
+        output.append(business_data)
+    next_page = paginate.next_num \
+        if paginate.has_next else None
+    prev_page = paginate.prev_num \
+        if paginate.has_prev else None
+    if len(output) > 0:
+        return jsonify(
+            {'status': 'Success','business_data': output, 'next_page': next_page, 'prev_page': prev_page}), 200
+    return jsonify({'status': 'Success', 'business_data': output}), 200
 
 
 @business.route('/api/businesses/<id>', methods=['GET'])
