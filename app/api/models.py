@@ -111,53 +111,26 @@ class Business(db.Model):
         db.session.commit()
 
     @staticmethod
-    def get_business(page, limit, search_string, location, category):
-        """docstring for paginating through the business"""
+    def get_businesses(page, limit, search_string, location, category):
+        """ returns all businesses"""
         filters = {}
         # Generate filters
         if location is not None:
             filters['location'] = location
         if category is not None:
             filters['category'] = category
-        res = Business.get_businesses(page, limit, search_string, filters)
-        if res['status']:
-            return jsonify({'search_data': res,
-                            'status': "Success"}), 200
-        return jsonify({'search_data': res,
-                        'status': "Failed"}), 404
-
-    @staticmethod
-    def get_businesses(page, limit, search_string, filters):
-        """ returns all businesses"""
 
         result = Business.query
 
         if search_string is not None:
             result = result.filter(Business.name.like("%"+search_string+"%"))
 
-        if bool(filters):
-            result = result.filter_by(**filters)
+        if location is not None:
+            result = result.filter(Business.location.like("%"+location+"%"))
+        if category is not None:
+            result = result.filter(Business.category.like("%"+category+"%"))
 
-        paginate = result.paginate(page, limit, False)
-
-        businesses = paginate.items
-        output = []
-        for business in businesses:
-            business_object = {
-                'id': business.id,
-                'name': business.name,
-                'category': business.category,
-                'location': business.location,
-                'description': business.description
-            }
-            output.append(business_object)
-        next_page = paginate.next_num \
-            if paginate.has_next else None
-        prev_page = paginate.prev_num \
-            if paginate.has_prev else None
-        if len(output) > 0:
-            return {'status': 'Success', 'business_data': output, 'next_page': next_page, 'prev_page': prev_page}
-        return {'status': 'Success', 'business_data': output}
+        return result.paginate(page, limit, False)
 
     @staticmethod
     def get_all():
