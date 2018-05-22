@@ -14,7 +14,7 @@ from app.api.auth.views import token_required
 from . import business
 
 
-BUSINESSES_PER_PAGE = 3
+DEFAULT_BUSINESSES_PER_PAGE = 3
 
 
 @business.route('/', methods=['GET'])
@@ -59,12 +59,12 @@ def register_business(current_user):
                         user_id=current_user.id)
     business.save()
     response = {
-        'business_data': {'Id': business.id,
-                          'Name': business.name,
-                          'Category': business.category,
-                          'Location': business.location,
-                          'Description': business.description,
-                          'User_id': current_user.id},
+        'business_data': {'id': business.id,
+                          'name': business.name,
+                          'category': business.category,
+                          'location': business.location,
+                          'description': business.description,
+                          'user_id': current_user.id},
         'message': 'Business successfully registered',
         'status': 'Success'
     }
@@ -76,7 +76,7 @@ def register_business(current_user):
 @swag_from('../api_docs/view_businesses.yml')
 def view_businesses(current_user):
     """
-    get businesses, search by name, filter by location, categoory
+    get businesses, search by name, filter by location, category
     paginate result
     """
     search_string = request.args.get('q', None)
@@ -85,7 +85,7 @@ def view_businesses(current_user):
 
     # Get page number
     page = request.args.get('page', 1, type=int)
-    limit = request.args.get('limit', BUSINESSES_PER_PAGE, type=int)
+    limit = request.args.get('limit', DEFAULT_BUSINESSES_PER_PAGE, type=int)
 
     paginate = Business.get_businesses(page, limit, search_string, location, category)
 
