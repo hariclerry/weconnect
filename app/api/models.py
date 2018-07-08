@@ -55,7 +55,9 @@ class User(db.Model):
             payload = {
                 'exp': datetime.utcnow() + timedelta(minutes=55),
                 'iat': datetime.utcnow(),
-                'sub': user_id
+                'sub': user_id,
+                'email': self.email,
+                'username': self.username
             }
             # Create the byte string token using the payload and the SECRET key
             jwt_string = jwt.encode(
@@ -154,10 +156,14 @@ class Review(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     description = db.Column(db.String(500), nullable=False)
     businessId = db.Column(db.Integer, db.ForeignKey('businesses.id'))
+    created_by =  db.Column(db.String(500))
+    user_id =  db.Column(db.Integer, db.ForeignKey('users.id'))
 
-    def __init__(self, description, businessId):
+    def __init__(self, description, businessId, created_by, user_id):
         self.description = description
         self.businessId = businessId
+        self.created_by = created_by
+        self.user_id = user_id
         db.create_all()
 
 

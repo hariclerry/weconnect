@@ -36,10 +36,12 @@ def add_review(current_user, id):
         return make_response(jsonify({'message': 'Business does not exist',
                                       'status': 'Failed'})), 401
     else:
-        review = Review(description=data['description'], businessId=id)
+        review = Review(description=description, businessId=id, 
+                        created_by=current_user.username, user_id=current_user.id)
         db.session.add(review)
         db.session.commit()
-        response = {'review_data': data,
+        response = {'review_data': { 'reviewId': review.id,
+                                      'description': review.description},
                     'message': 'Successfully Added Review',
                     'status': 'Success'}
         return jsonify(response), 201
@@ -51,22 +53,25 @@ def add_review(current_user, id):
 def view_reviews(current_user, id):
     """Endpoint for viewing added reviews for a particular business"""
 
-    business = Business.query.filter_by(id=id).first()
+    
+    reviews = Review.query.filter_by(businessId=id).all()
 
-    if business is None:
-        return make_response(jsonify({'message': 'Business does not exist',
-                                      'status': 'Failed'})), 401
-    else:
-        all_reviews = Review.query.all()
-        reviews = []
-        for review in all_reviews:
-            output = {
-                'description': review.description,
-                'businessId': review.businessId}
-            reviews.append(output)
-        value = []
+    if reviews:
+        business = Business.query.filter_by(id=id).first()
+
+        review_data=[]
         for review in reviews:
-            if review['businessId'] is not None:
-                value.append(review)
-        return jsonify({'review_data': value,
-                        'status': 'Success'})
+            output={}
+            output['description']=review.description
+            output['username']=review.created_by
+
+            review_data.append(output)
+
+        return jsonify({'status':'Success',
+                            'review_data': review_data}), 200
+    else:
+        return jsonify({'Status':'Failed',
+                            'Message':'No reviews found'}), 404
+
+
+  

@@ -14,7 +14,7 @@ from app.api.auth.views import token_required
 from . import business
 
 
-DEFAULT_BUSINESSES_PER_PAGE = 3
+DEFAULT_BUSINESSES_PER_PAGE = 10
 
 
 @business.route('/', methods=['GET'])
@@ -123,12 +123,39 @@ def view_business(current_user, id):
 
     else:
         output = {}
+        output['id'] =  business.id
         output['name'] = business.name
         output['category'] = business.category
         output['location'] = business.location
         output['description'] = business.description
         return jsonify({'business_data': output,
                          'status': 'Success'}),  200
+
+@business.route('/api/user/<userid>/businesses', methods=['GET'])
+@token_required
+# @swag_from('../api_docs/view_business.yml')
+def view_user_businesses(current_user, userid):
+    """Endpoint for returning businesses belonging to a particular user"""
+    businesses = Business.query.filter_by(user_id=userid).all()
+
+    if businesses is None:
+        return make_response(jsonify({'message': 'No businesses',
+                                      'status': 'Failed'})), 401
+
+    else:
+        businesslist = []
+        for business in businesses:
+
+
+            output = {}
+            output['id'] =  business.id
+            output['name'] = business.name
+            output['category'] = business.category
+            output['location'] = business.location
+            output['description'] = business.description
+            businesslist.append(output)
+        return jsonify({'business_data': businesslist,
+                             'status': 'Success'}),  200
 
 
 @business.route('/api/businesses/<id>', methods=['PUT'])
