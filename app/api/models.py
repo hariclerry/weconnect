@@ -7,7 +7,7 @@ from flask_bcrypt import Bcrypt
 from flask import jsonify
 from sqlalchemy import create_engine
 from sqlalchemy.orm import relationship
-from sqlalchemy import Column, ForeignKey, Integer, String
+from sqlalchemy import Column, ForeignKey, Integer, String, or_
 
 from app import db
 
@@ -113,24 +113,17 @@ class Business(db.Model):
         db.session.commit()
 
     @staticmethod
-    def get_businesses(page, limit, search_string, location, category):
+    def get_businesses(page, limit, search_string):
         """ returns all businesses"""
-        filters = {}
-        # Generate filters
-        if location is not None:
-            filters['location'] = location
-        if category is not None:
-            filters['category'] = category
 
         result = Business.query
 
         if search_string is not None:
-            result = result.filter(Business.name.like("%"+search_string+"%"))
-
-        if location is not None:
-            result = result.filter(Business.location.like("%"+location+"%"))
-        if category is not None:
-            result = result.filter(Business.category.like("%"+category+"%"))
+            result = result.filter(or_(
+                Business.name.like("%"+search_string+"%"), 
+                Business.location.like("%"+search_string+"%"),
+                Business.category.like("%"+search_string+"%") 
+            ))
 
         return result.paginate(page, limit, False)
 
