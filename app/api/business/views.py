@@ -14,7 +14,7 @@ from app.api.auth.views import token_required
 from . import business
 
 
-DEFAULT_BUSINESSES_PER_PAGE = 10
+DEFAULT_BUSINESSES_PER_PAGE = 5
 
 
 @business.route('/', methods=['GET'])
@@ -80,14 +80,12 @@ def view_businesses(current_user):
     paginate result
     """
     search_string = request.args.get('q', None)
-    location = request.args.get('location', None)
-    category = request.args.get('category', None)
 
     # Get page number
     page = request.args.get('page', 1, type=int)
     limit = request.args.get('limit', DEFAULT_BUSINESSES_PER_PAGE, type=int)
 
-    paginate = Business.get_businesses(page, limit, search_string, location, category)
+    paginate = Business.get_businesses(page, limit, search_string)
 
     businesses = paginate.items
     output = []
