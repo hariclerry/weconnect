@@ -1,20 +1,20 @@
-# """This module defines the application endpoints"""
+# """This module defines the application endpoints for Businesses"""
 
-from flask import request, jsonify, url_for, session, make_response, abort
-from flasgger import swag_from
-from functools import wraps
-import jwt
-import datetime
 import re
+import datetime
+from functools import wraps
+
+import jwt
+from flasgger import swag_from
+from flask import request, jsonify, url_for, session, make_response, abort
+
 from app import db, models
-from app.api.auth.views import token_required
 from app.api.models import Business
+from app.api.auth.views import token_required
 from . import business
-from .business_helper import BusinessService
 
-PAG_PAGE = BusinessService()
 
-BUSINESSES_PER_PAGE = 3
+DEFAULT_BUSINESSES_PER_PAGE = 3
 
 
 @business.route('/', methods=['GET'])
@@ -59,14 +59,14 @@ def register_business(current_user):
                         user_id=current_user.id)
     business.save()
     response = {
-            'Business_data': {'Id': business.id,
-            'Name': business.name,
-            'Category': business.category,
-            'Location': business.location,
-            'Description': business.description,
-            'User_id': current_user.id},
-            'message': 'Business successfully registered',
-            'status': 'Success'
+        'business_data': {'id': business.id,
+                          'name': business.name,
+                          'category': business.category,
+                          'location': business.location,
+                          'description': business.description,
+                          'user_id': current_user.id},
+        'message': 'Business successfully registered',
+        'status': 'Success'
     }
     return jsonify(response), 201
 
@@ -76,18 +76,36 @@ def register_business(current_user):
 @swag_from('../api_docs/view_businesses.yml')
 def view_businesses(current_user):
     """
-    get businesses, search by name, filter by location, categoory
+    get businesses, search by name, filter by location, category
     paginate result
     """
     search_string = request.args.get('q', None)
-    location = request.args.get('location', None)
-    category = request.args.get('category', None)
 
     # Get page number
     page = request.args.get('page', 1, type=int)
-    limit = request.args.get('limit', BUSINESSES_PER_PAGE, type=int)
+    limit = request.args.get('limit', DEFAULT_BUSINESSES_PER_PAGE, type=int)
 
-    return PAG_PAGE.get_businesses(page, limit, search_string, location, category)
+    paginate = Business.get_businesses(page, limit, search_string)
+
+    businesses = paginate.items
+    output = []
+    for business in businesses:
+        business_data = {
+            'id': business.id,
+            'name': business.name,
+            'category': business.category,
+            'location': business.location,
+            'description': business.description
+        }
+        output.append(business_data)
+    next_page = paginate.next_num \
+        if paginate.has_next else None
+    prev_page = paginate.prev_num \
+        if paginate.has_prev else None
+    if len(output) > 0:
+        return jsonify(
+            {'status': 'Success','business_data': output, 'next_page': next_page, 'prev_page': prev_page}), 200
+    return jsonify({'status': 'Success', 'business_data': output}), 200
 
 
 @business.route('/api/businesses/<id>', methods=['GET'])
@@ -101,14 +119,42 @@ def view_business(current_user, id):
         return make_response(jsonify({'message': 'Business does not exist',
                                       'status': 'Failed'})), 401
 
-    else:    
+    else:
         output = {}
+        output['id'] =  business.id
         output['name'] = business.name
         output['category'] = business.category
         output['location'] = business.location
         output['description'] = business.description
-        return jsonify({'Business Data': output}),  200
-    
+        return jsonify({'business_data': output,
+                         'status': 'Success'}),  200
+
+@business.route('/api/user/<userid>/businesses', methods=['GET'])
+@token_required
+# @swag_from('../api_docs/view_business.yml')
+def view_user_businesses(current_user, userid):
+    """Endpoint for returning businesses belonging to a particular user"""
+    businesses = Business.query.filter_by(user_id=userid).all()
+
+    if businesses is None:
+        return make_response(jsonify({'message': 'No businesses',
+                                      'status': 'Failed'})), 401
+
+    else:
+        businesslist = []
+        for business in businesses:
+
+
+            output = {}
+            output['id'] =  business.id
+            output['name'] = business.name
+            output['category'] = business.category
+            output['location'] = business.location
+            output['description'] = business.description
+            businesslist.append(output)
+        return jsonify({'business_data': businesslist,
+                             'status': 'Success'}),  200
+
 
 @business.route('/api/businesses/<id>', methods=['PUT'])
 @token_required
@@ -127,12 +173,12 @@ def update_business(current_user, id):
     if not name or not category or not location or not description:
         return jsonify({'message': 'Please fill in all the credentials',
                         'status': 'Failed'}), 400
-    
+
     business = Business.query.filter_by(id=id).first()
 
     if business is None:
         return make_response(jsonify({'message': 'Business does not exist',
-                                      'status': 'Failed' })), 401
+                                      'status': 'Failed'})), 401
     else:
         business.name = data['name']
         business.category = data['category']
@@ -144,7 +190,6 @@ def update_business(current_user, id):
         return jsonify({'message': 'Successfully updated business',
                         'business_data': data,
                         'status': 'Succes'}), 200
-   
 
 
 @business.route('/api/businesses/<id>', methods=['DELETE'])
@@ -157,11 +202,9 @@ def delete_business(current_user, id):
 
     if business is None:
         return make_response(jsonify({'message': 'Business does not exist',
-                                  'status': 'Failed'})), 401
+                                      'status': 'Failed'})), 401
 
     else:
         business.delete()
-        return jsonify({
-            'message': 'Business deleted successfully',
-            'status': 'Success' }), 200
-   
+        return jsonify({'message': 'Business deleted successfully',
+                        'status': 'Success'}), 200

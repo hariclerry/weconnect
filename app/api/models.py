@@ -1,9 +1,14 @@
-from sqlalchemy import Column, ForeignKey, Integer, String
+"""This module defines the database models"""
+
+from datetime import datetime, timedelta
+
+import jwt
+from flask_bcrypt import Bcrypt
+from flask import jsonify
 from sqlalchemy import create_engine
 from sqlalchemy.orm import relationship
-from flask_bcrypt import Bcrypt
-import jwt
-from datetime import datetime, timedelta
+from sqlalchemy import Column, ForeignKey, Integer, String, or_
+
 from app import db
 
 
@@ -50,7 +55,9 @@ class User(db.Model):
             payload = {
                 'exp': datetime.utcnow() + timedelta(minutes=55),
                 'iat': datetime.utcnow(),
-                'sub': user_id
+                'sub': user_id,
+                'email': self.email,
+                'username': self.username
             }
             # Create the byte string token using the payload and the SECRET key
             jwt_string = jwt.encode(
@@ -106,37 +113,19 @@ class Business(db.Model):
         db.session.commit()
 
     @staticmethod
-    def get_businesses(page, limit, search_string, filters):
+    def get_businesses(page, limit, search_string):
         """ returns all businesses"""
 
         result = Business.query
 
         if search_string is not None:
-            result = result.filter(Business.name.like("%"+search_string+"%"))
+            result = result.filter(or_(
+                Business.name.like("%"+search_string+"%"), 
+                Business.location.like("%"+search_string+"%"),
+                Business.category.like("%"+search_string+"%") 
+            ))
 
-        if bool(filters):
-            result = result.filter_by(**filters)
-
-        paginate = result.paginate(page, limit, False)
-
-        businesses = paginate.items
-        output = []
-        for business in businesses:
-            business_object = {
-                'id': business.id,
-                'name': business.name,
-                'category': business.category,
-                'location': business.location,
-                'description': business.description
-            }
-            output.append(business_object)
-        next_page = paginate.next_num \
-            if paginate.has_next else None
-        prev_page = paginate.prev_num \
-            if paginate.has_prev else None
-        if len(output) > 0:
-            return {'status': 'Success', 'businesses': output, 'next_page': next_page, 'prev_page': prev_page}
-        return {'status': 'Success', 'businesses': output}
+        return result.paginate(page, limit, False)
 
     @staticmethod
     def get_all():
@@ -160,10 +149,14 @@ class Review(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     description = db.Column(db.String(500), nullable=False)
     businessId = db.Column(db.Integer, db.ForeignKey('businesses.id'))
+    created_by =  db.Column(db.String(500))
+    user_id =  db.Column(db.Integer, db.ForeignKey('users.id'))
 
-    def __init__(self, description, businessId):
+    def __init__(self, description, businessId, created_by, user_id):
         self.description = description
         self.businessId = businessId
+        self.created_by = created_by
+        self.user_id = user_id
         db.create_all()
 
 

@@ -1,3 +1,4 @@
+"""This module defines the Common configurations settings"""
 import os
 
 class Config(object):
@@ -33,7 +34,7 @@ class ProductionConfig(Config):
     """
     Production configurations
     """
-    SQLALCHEMY_DATABASE_URI = 'postgresql://postgres:clerry@localhost/weconnect'
+    SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL")
     SQLALCHEMY_ECHO = True
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
