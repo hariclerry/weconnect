@@ -120,9 +120,9 @@ class Business(db.Model):
 
         if search_string is not None:
             result = result.filter(or_(
-                Business.name.like("%"+search_string+"%"), 
-                Business.location.like("%"+search_string+"%"),
-                Business.category.like("%"+search_string+"%") 
+                Business.name.ilike("%"+search_string+"%"), 
+                Business.location.ilike("%"+search_string+"%"),
+                Business.category.ilike("%"+search_string+"%") 
             ))
 
         return result.paginate(page, limit, False)
